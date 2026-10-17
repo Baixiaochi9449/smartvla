@@ -1,0 +1,25 @@
+% !TeX root = ../paper.tex
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{\baselineskip}
+\caption{LIBERO-SMART task suites and initialization counts.}
+\label{tab:smart-suite-composition}
+\normalsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.21}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.08}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.12}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.13}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.46}}@{}}
+\toprule
+Suite & Tasks & Init./task & Instances & Core content \\
+\midrule
+Semantic & 40 & 50 & 2,000 & paraphrases, sub-tasks, atomic motions, constraints \\
+Visual Prompt (Vis) & 40 & 50 & 2,000 & object circles, regions, points, trajectories \\
+Control & 40 & 50 & 2,000 & target correction and process re-planning \\
+\textbf{Total} & \textbf{120} & \textbf{50} & \textbf{6,000} & three capabilities \\
+\bottomrule
+\end{tabular}
+\end{table}

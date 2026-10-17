@@ -1,0 +1,19 @@
+% !TeX root = ../paper.tex
+\hypertarget{motivating-diagnostics-why-vlas-struggle-with-diverse-instructions-and-reliable-control}{%
+\section{Motivational Diagnostics}\label{motivating-diagnostics-why-vlas-struggle-with-diverse-instructions-and-reliable-control}}
+
+The behavioral interventions reveal a gap between original-task competence and responses to local
+commands, visual prompts, and corrections. To determine what can be used to bridge this gap, we ask
+whether the relevant semantic and visual information remains accessible after action training. If it
+is absent, improving the mapping from existing representations to actions alone would be
+insufficient; the relevant representations would also need to be learned. We train target-point
+probes on frozen representations under paired language and visual interventions. Target assignment
+rates reach 83.80--98.82\%, above the 50\% two-choice reference, and predicted targets shift
+consistently with the interventions. These findings show that target-relevant information remains
+readable despite execution failures. Readability does not establish that the policy uses this
+information, but provides a basis for learning more explicit correspondences between current
+instructions, visual targets, and local actions. This motivates the supervision and training design
+below, rather than relying solely on additional trajectory fitting. Full protocols, metric
+definitions, and results are provided in Appendices~\ref{appendix:behavior-diagnostics}
+and~\ref{appendix:representation-diagnostics}.
+

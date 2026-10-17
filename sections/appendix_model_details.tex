@@ -1,0 +1,248 @@
+% !TeX root = ../paper.tex
+\section{SmartVLA-Pi and SmartVLA-OFT: Architecture, Training, and Calling Protocol}
+\label{appendix:model-details}
+
+This appendix describes the two policy instantiations used in the
+experiments. SmartVLA changes the supervision and training procedure,
+while retaining the native action models of the two base VLA families.
+Both variants consume the same type of caller-provided instruction,
+third-person and wrist RGB observations, and robot state, and return a
+finite local action block. The regression and flow-matching losses in
+Equations~(\ref{eq:oft-loss}) and~(\ref{eq:pi-flow-loss}) supply the native
+losses used in the shared training formulation of Equation~(\ref{eq:action-objective}).
+
+\subsection{Common Instruction-Conditioned Interface}
+
+At time $t$, each policy maps the current multimodal observation and
+command to a local action distribution,
+\begin{equation}
+\label{eq:policy-interface}
+\mathbf{a}_{t:t+H-1} \sim \pi_\theta(\cdot \mid
+  \mathbf{o}_t,\mathbf{s}_t,c_t),
+\end{equation}
+where $c_t$ can be a complete task instruction, a phase-level
+subgoal, an atomic motion, a spatially grounded command, or a corrective
+instruction. The visual markers used by LIBERO-SMART are rendered in the
+RGB inputs and are not supplied through privileged channels. The interface in
+Equation~(\ref{eq:policy-interface}) is used for end-to-end task execution and for repeated calls
+from an upper-level controller.
+
+\subsection{SmartVLA-OFT}
+\label{app:smartvla-oft}
+
+SmartVLA-OFT uses Qwen3-VL-4B-Instruct~\citep{bai2025qwen3vl} as its vision-language backbone
+and an OFT-style residual MLP for continuous action regression. The
+backbone combines a 24-layer vision transformer with a 36-layer language
+transformer of hidden width 2,560. Multi-view image tokens, the current
+instruction, and a textual encoding of normalized robot state form the
+conditioning sequence. We append $H$ action-query tokens, one for each
+predicted step. The final-layer hidden states at these positions are
+extracted together in a single forward pass:
+\begin{equation}
+\label{eq:oft-features}
+\mathbf{Z}_t=\operatorname{Gather}_{\mathrm{act}}
+\!\left[F_\psi(\mathbf{o}_t,c_t,
+\operatorname{Tok}_s(\mathbf{s}_t),\mathbf{q}_{1:H})\right]
+\in\mathbb{R}^{H\times2560}.
+\end{equation}
+In Equation~(\ref{eq:oft-features}), $\operatorname{Tok}_s$ denotes state discretization and textual
+encoding, and $\mathbf{q}_{1:H}$ are fixed action placeholders rather
+than previously generated actions. A shared MLP maps each query state
+to a normalized continuous action. It uses a 5,120-dimensional hidden
+representation, two residual blocks with LayerNorm and ReLU, and a
+32-dimensional output projection:
+\begin{equation}
+\label{eq:oft-action-decoding}
+\widehat{\mathbf{A}}_t=g_\phi(\mathbf{Z}_t),\qquad
+\mathbf{A}^{\mathrm{exec}}_t=
+\mathcal{N}^{-1}\!\left(\widehat{\mathbf{A}}_t[:,\mathcal{I}]\right).
+\end{equation}
+In Equation~(\ref{eq:oft-action-decoding}), the index set $\mathcal{I}$ selects the active robot
+action dimensions,
+and $\mathcal{N}^{-1}$ applies the corresponding action denormalization.
+Training uses an $L_1$ loss on these active dimensions:
+\begin{equation}
+\label{eq:oft-loss}
+\mathcal{L}_{\mathrm{OFT}}=
+\frac{1}{H|\mathcal{I}|}\sum_{k=0}^{H-1}\sum_{j\in\mathcal{I}}
+\left|\widehat{A}_{t,k,j}-A_{t,k,j}\right|.
+\end{equation}
+The LIBERO instantiation uses two $256\times256$ RGB views, an
+eight-dimensional state encoded on a 0--1000 scale, $H=8$, and seven
+active action dimensions. The whole chunk is predicted at once, without
+autoregressive action-token decoding or iterative flow sampling.
+Action-aligned segments and grade-conditioned rewrites provide the
+semantic and spatial supervision for this otherwise unchanged
+continuous-regression interface.
+
+\subsection{SmartVLA-Pi}
+\label{app:smartvla-pi}
+
+SmartVLA-Pi uses the $\pi_{0.5}$ architecture implemented in OpenPI:
+a PaliGemma vision-language backbone comprising a SigLIP-So400m/14
+visual encoder and a Gemma-2B language model, paired with a separate
+approximately 300M-parameter action expert. The expert has 18 transformer
+layers and hidden width 1,024. Images, language, and discretized robot
+state form the multimodal prefix. In this $\pi_{0.5}$ configuration,
+state is encoded with the language tokens rather than injected as a
+separate continuous state token into the action suffix. Noisy actions
+are projected into expert tokens, while a sinusoidal flow-time embedding
+and an MLP condition the expert through adaptive RMS normalization.
+Expert tokens attend to the multimodal prefix and to one another.
+
+Let $\mathbf{A}_t\in\mathbb{R}^{H\times32}$ denote the normalized
+demonstration action chunk and $\epsilon\sim\mathcal{N}(0,I)$ Gaussian
+noise. Using the convention that $\tau=1$ is noise and $\tau=0$ is the
+action target, training constructs
+\begin{equation}
+\label{eq:pi-flow-interpolation}
+\mathbf{X}^{\tau}_t=(1-\tau)\mathbf{A}_t+\tau\epsilon,
+\qquad \mathbf{u}_t=\epsilon-\mathbf{A}_t.
+\end{equation}
+Let $\mathcal{I}$ denote the active action dimensions of the current
+embodiment and $\mathbf{M}$ the binary mask retaining those dimensions
+at every predicted step. Using the interpolation and velocity target in
+Equation~(\ref{eq:pi-flow-interpolation}), the conditional velocity field $v_\theta$
+is learned through a flow-matching loss evaluated only on active dimensions,
+\begin{equation}
+\label{eq:pi-flow-loss}
+\mathcal{L}_{\mathrm{Pi}}=
+\mathbb{E}_{\mathbf{A}_t,\epsilon,\tau}\!
+\left[\frac{1}{H|\mathcal{I}|}\left\|
+\mathbf{M}\odot\left(
+v_\theta(\mathbf{X}^{\tau}_t,\tau;\mathbf{P}_t)
+-(\epsilon-\mathbf{A}_t)\right)\right\|_F^2\right],
+\end{equation}
+where $\mathbf{P}_t$ denotes the encoded multimodal prefix. Padded
+dimensions are excluded from the loss in warmup, pretraining, and adaptation alike.
+At inference, the prefix is encoded once and its attention keys and
+values are cached. Starting from
+$\mathbf{X}^{(0)}_t=\mathbf{M}\odot\epsilon$, the action expert performs
+$N$ Euler steps from noise to actions:
+\begin{equation}
+\label{eq:pi-flow-inference}
+\begin{aligned}
+\tau_n&=1-\frac{n}{N},\qquad n=0,\ldots,N-1,\\
+\mathbf{X}^{(n+1)}_t&=\mathbf{M}\odot\left[
+\mathbf{X}^{(n)}_t-\frac{1}{N}v_\theta(\mathbf{X}^{(n)}_t,\tau_n;\mathbf{P}_t)\right],\\
+\mathbf{A}^{\mathrm{exec}}_t&=
+\mathcal{N}^{-1}\!\left(\mathbf{X}^{(N)}_t[:,\mathcal{I}]\right).
+\end{aligned}
+\end{equation}
+The LIBERO instantiation uses $224\times224$ model-input images,
+$H=10$, $N=10$, and seven active dimensions in the 32-dimensional
+action container; inactive dimensions remain zero during sampling.
+In Equation~(\ref{eq:pi-flow-inference}), $N$ counts internal integration steps, whereas $H$ counts
+predicted environment actions. Prefix caching avoids rerunning the
+vision-language backbone at every integration step. SmartVLA changes
+the instruction and segment-level action supervision while retaining this
+flow-matching action generator.
+
+\subsection{Three-Stage Optimization}\label{app:training-hparams}
+
+Both variants follow the same three-stage schedule: warmup,
+pretraining, and adaptation. Warmup uses object-free atomic-motion commands and local action
+segments. With images omitted and robot state retained, the entire VLM
+backbone is frozen while the action head learns the correspondence between
+a short command and its local control. Pretraining restores the multimodal observations and jointly
+trains the policy on original instructions and grade-permitted semantic
+and spatial rewrites. Adaptation then fine-tunes the
+complete policy independently for each target domain, mixing original
+task commands with the applicable steering supervision. Original-task
+examples preserve the continuous episode trajectory, whereas local
+examples use the corresponding action-aligned segment. This separates
+complete-task imitation from local command following while keeping both
+forms accessible through one instruction interface.
+
+We collectively refer to the checkpoints obtained after warmup
+followed by pretraining as \textbf{SmartVLA-Base}, with two instantiations:
+\textbf{SmartVLA-Pi-Base} and \textbf{SmartVLA-OFT-Base}. The warmup checkpoint
+is an intermediate initialization for pretraining. For each architecture, its
+Base checkpoint initializes independent adaptation runs for LIBERO, RoboTwin
+Full, RoboTwin C2R, and Piper. Each run produces a separate adapted expert;
+adaptation does not proceed sequentially from one target-domain expert to
+another. Unless otherwise specified, SmartVLA results use the corresponding
+adapted experts, reported as SmartVLA-Pi and SmartVLA-OFT. The Base suffix
+identifies the pretrained checkpoint before target-domain adaptation.
+
+SmartVLA-Pi and SmartVLA-OFT use the same listed training settings and update
+counts within each stage and target-domain protocol. Shared warmup and pretraining
+settings are reported once in Table~\ref{tab:pretraining-hparams}, with
+stage-specific learning rates indicated explicitly. Adaptation settings are
+listed by target domain in Table~\ref{tab:domain-finetuning-hparams}.
+Training steps count optimizer updates, and the effective global batch size
+includes data parallelism and gradient accumulation.
+
+\input{tables/table_pretraining_hyperparameters}%
+
+\input{tables/table_adaptation_hyperparameters}%
+
+\hypertarget{agentic-calling-protocol}{%
+\subsection{Agentic Calling
+Protocol}\label{agentic-calling-protocol}}
+
+In Table~\ref{tab:libero-smart}, direct-policy results use all 6,000
+instances (120 tasks, 10 macro layouts, and 5 local initializations per
+layout). The agentic protocol uses the same task contracts, and model
+comparisons are made within each protocol.
+
+In an agentic system, one upper-level call specifies a natural-language
+command and the number of action blocks to execute. A single low-level
+VLA prediction is \(\mathbf{a}_{t:t+H-1} \sim \pi_\theta(\cdot \mid
+\mathbf{o}_t,\mathbf{s}_t,\mathbf{c}_t)\),
+where \(\mathbf{o}_t\) contains the current third-person and wrist RGB
+observations. Colors, regions, trajectories, and target points involved
+in the task appear directly in these images rather than through
+privileged channels. \(\mathbf{s}_t\) denotes end-effector pose and
+gripper state, and \(\mathbf{c}_t\) is the natural-language command
+supplied by the caller. It may be a complete task, a current subgoal, or
+a local corrective command based on execution. SmartVLA predicts a local
+block of length \(H\); our Pi-based agentic evaluations use \(H=10\). This is the length of one
+action
+block, not the total number of environment steps in an upper-level call.
+
+Each upper-level call also specifies the number \(K\) of action blocks,
+corresponding to a budget of \(KH\) environment action steps. Within the
+call, the VLA executes blocks under the same command: after each block,
+the system obtains updated observations and robot state and predicts the
+next block. After \(K\) blocks, control returns to the caller. Thus, one
+upper-level call can contain multiple action blocks and still use
+updated observations for closed-loop control; it is not required to
+complete an entire command or long-horizon task.
+
+The human operator or upper-level agent can use the returned observation
+to call the VLA again with the original command, a sub-task command, or
+a corrective command, and can choose a new block count \(K\). It may
+instead call an atomic skill in the agentic system or terminate the
+episode. Both \(K\) and the number of calls are selected dynamically
+from execution progress and remain subject to a common interaction
+budget.
+
+For the Agentic+$\pi_{0.5}$ and Agentic+SmartVLA-Pi comparison, we use GPT-5.6
+as the fixed upper-level planning model. We fix the upper-level
+controller, available tools, calling protocol, and re-planning rules, and
+keep tasks, initializations, and interaction budgets identical while
+replacing only the low-level VLA. The upper controller decides from
+observations when to call the VLA, which command to use, and how many
+action blocks to execute, but cannot access environment rewards, online
+success signals, or hidden evaluation state.
+
+CaP-X uses its own harness and is reported as a separate complete-system
+baseline rather than as a controlled replacement of the low-level VLA.
+
+The agentic systems use the same scoring rules. An episode terminates when
+the environment-step budget is exhausted or the upper-level VLM reports
+task completion, whichever occurs first. A completion report is a stopping
+decision, not an evaluator-provided success signal. The evaluator retains
+the episode's contract history across VLA calls and tool invocations;
+returning control to the upper level does not clear forbidden events or
+the recorded step sequence. Success is determined by strict contract
+satisfaction at termination, without the additional 30-step success window
+used for end-to-end policies. A VLM completion report alone does not count
+as success.
+
+All agentic scores measure \textbf{overall Agent+VLA performance}, not the
+standalone capability of the VLA. The fixed-controller comparison between
+Agentic+$\pi_{0.5}$ and Agentic+SmartVLA-Pi isolates the effect of replacing the
+low-level policy within that shared upper-level system.
+

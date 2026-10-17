@@ -1,0 +1,91 @@
+% !TeX root = ../paper.tex
+\section{Behavioral Intervention Diagnosis Protocol}
+\label{appendix:behavior-diagnostics}
+
+\subsection{Condition Construction and Instance Pairing}
+
+We evaluate $\pi_{0.5}$, GR00T N1.6, and StarVLA under four conditions:
+ORI, Semantic (Sem), Visual Prompt (Vis), and Control (Con). ORI retains the original task
+instruction and scene to
+measure basic task execution. Semantic keeps the scene and task context
+executable while changing the object, local action, target relation, or
+holding/termination requirement. Vis changes object or target layout,
+or adds a circle, point, region, or trajectory in the image as the visual
+target. Control starts from an intermediate state in which the robot holds
+the object and replaces the target or subsequent process requirement.
+The initial held state in Control is not counted as a new object
+selection.
+
+The three models use the same instances, environment initializations, and
+intervention commands. Each model is evaluated on 100 instances per
+condition, for 1,200 rollouts in total. Semantic commands cover phase
+sub-tasks, atomic motions, object roles, spatial relations, and holding or
+termination requirements. Visual prompts are synchronized with the current
+object or target region, and Control commands are applied only to
+physically executable intermediate states. For each rollout, we record the original
+task, initialization, intervention command, and applicable evaluation conditions.
+
+\subsection{Behavioral Metrics}
+
+We report three binary metrics:
+
+\begin{itemize}
+\item
+  \textbf{Target-object selection rate}: the specified object is correctly
+  grasped at least once during execution. This metric is not applicable
+  to Control, which starts with an object already held.
+\item
+  \textbf{Target-position attainment rate}: the manipulated object reaches
+  the position, region, or target relation specified by the current
+  instruction at least once.
+\item
+  \textbf{Instruction-completion rate}: all applicable relational,
+  sequential, release, holding, and termination requirements are
+  satisfied.
+\end{itemize}
+
+Correct object selection or transient target attainment does not imply
+complete execution. These metrics decompose the behavioral chain and do
+not replace the LIBERO-SMART trajectory contract or define a ranking
+across architectures.
+
+\subsection{Trajectory Review}
+
+Behavior is judged jointly from state trajectories, action trajectories,
+and task conditions. Representative rollouts are reviewed frame by frame
+to determine whether the correct object was selected, whether the target
+changed with the current condition, whether the obsolete task continued,
+and whether unnecessary actions occurred after a local goal was reached.
+The main recurring failure patterns are summarized in
+Table~\ref{tab:behavior-failure-patterns} and illustrated in
+Figure~\ref{fig:behavior-examples}. The complete quantitative
+metrics are reported in Appendix~\ref{appendix:representation-diagnostics},
+Table~\ref{tab:diagnostics}.
+
+\subsection{Behavioral Results and Failure Patterns}
+\label{behavioral-diagnosis}
+
+All three models correctly select the object and reach the original target under ORI, with
+complete-task success rates of 96--99\%. Under Sem, target-object selection remains at 79--88\%, but
+target-position attainment drops to 3--11\%, and instruction completion falls to only 1--6\%.
+Correctly identifying and grasping the object therefore does not ensure that the subsequent
+execution satisfies the specified local action, target relation, or holding and termination
+requirements.
+
+Under Vis, target-object selection remains at 72--83\%, while target-position attainment is only
+3--14\% and instruction completion is only 2--5\%. Under Con, target-position attainment and
+instruction completion range from 6\% to 25\%, despite starting from a physically executable state
+with the object already held. These results distinguish object selection, target-position
+attainment, and complete instruction execution: success at an earlier part of the behavior does not
+guarantee that subsequent actions satisfy the current instruction. Table~\ref{tab:diagnostics}
+reports the full results.
+
+\input{tables/table_behavior_failure_patterns}%
+
+Figure~\ref{fig:behavior-examples} compares $\pi_{0.5}$ and SmartVLA on four
+diagnostic tasks, highlighting whether execution follows the instructed
+object--target relation, visual prompt, updated destination, or holding
+requirement.
+
+\input{figures/fig_behavior_comparison}%
+

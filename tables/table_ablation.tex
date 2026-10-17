@@ -1,0 +1,26 @@
+% !TeX root = ../paper.tex
+\begin{wraptable}{r}{0.54\textwidth}
+\centering
+\setlength{\abovecaptionskip}{0pt}
+\setlength{\belowcaptionskip}{\baselineskip}
+\caption{\centering SmartVLA-Pi ablations on \mbox{LIBERO-SMART} (\%).}
+\label{tab:ablation}
+\normalsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Setting & Sem & Vis & Con & Avg. \\
+\midrule
+w/o warmup & 19.70 & 7.35 & 11.15 & 12.73 \\
+w/o pretraining & 13.90 & 2.55 & 5.10 & 7.18 \\
+From raw VLM & 14.05 & 2.30 & 4.80 & 7.05 \\
+Raw-data adaptation & 16.85 & 4.25 & 5.10 & 8.73 \\
+Uniform segmentation & 12.20 & 5.55 & 4.60 & 7.45 \\
+w/o grade conditioning & 20.40 & 6.30 & 10.05 & 12.25 \\
+Fine-grained sem. only & 15.10 & 2.05 & 3.85 & 7.00 \\
+\midrule
+\rowcolor{smartvlarow}
+\textbf{Full SmartVLA-Pi} & \textbf{23.05} & \textbf{8.40} & \textbf{12.55} & \textbf{14.67} \\
+\bottomrule
+\end{tabular}
+\end{wraptable}

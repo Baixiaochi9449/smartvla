@@ -1,27 +1,25 @@
-SmartVLA -- Overleaf source package, 2026-10-08
+SmartVLA -- modular Overleaf source project
 
-Upload this ZIP using Overleaf's Upload Project option.
+Upload the complete project using Overleaf's Upload Project option.
 Main document: paper.tex
 Compiler: pdfLaTeX
-Local verification environment: TeX Live 2023 (Debian), pdfTeX 1.40.25.
-Clean local compilation passed. All 33 pages matched the existing PDF in
-extracted text positions and page rendering at 72 dpi.
-Select TeX Live 2023 on Overleaf if available to reduce version-related
-typesetting differences. Matching the TeX Live year does not guarantee
-identical installed package revisions.
 
-This package preserves the current manuscript, bibliography, template,
-math commands, and all nine referenced figure assets without editing them.
-PDF figures retain their original vector content. The manuscript remains
-in anonymous submission mode. No content or layout revisions were made.
+Keep these directories together with the root source files:
+  sections/  manuscript sections, statements, and appendices
+  figures/   figure LaTeX definitions and PDF/JPG assets
+  tables/    all main-text and appendix table definitions
 
-paper.bib and the existing paper.bbl are both included. BibTeX can rebuild
-the bibliography. reference/paper_submission_snapshot.pdf is the existing
-33-page local manuscript PDF for comparison, not the main document.
+Compile paper.tex from the project root. Section, figure, and table files
+are included with root-relative paths and are not standalone documents.
+Keep paper.bib, math_commands.tex, iclr2027_conference.sty, and
+iclr2027_conference.bst at the project root. BibTeX rebuilds the bibliography.
 
-Source videos, unused figures, old drafts, unrelated documents, and build
-caches are excluded. This package snapshots the local manuscript files;
-it does not retrieve or verify the file uploaded to the conference portal.
+The manuscript remains in anonymous submission mode. The directory split
+preserves scientific text, numerical results, labels, and manuscript order.
+See README.md for the section map and local pdfLaTeX build commands.
+
+output/pdf/paper.pdf and reference/paper_submission_snapshot.pdf are existing
+PDF snapshots, not source entry points. Recompile after editing the sources.
 
 If Overleaf produces different page breaks, first check the main document,
 compiler, and TeX Live selection, then use Recompile from scratch.

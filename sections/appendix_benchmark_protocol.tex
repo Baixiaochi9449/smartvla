@@ -1,0 +1,248 @@
+% !TeX root = ../paper.tex
+\section{Benchmark Evaluation Settings and LIBERO-SMART Protocol}
+\label{appendix:smart-benchmark}
+
+\textbf{Benchmark adaptation and evaluation convention.}
+Our cross-model comparisons evaluate the downstream capabilities
+of trained policies. Models retain their respective pretraining
+data, objectives, and training budgets. Except where explicitly
+noted, baselines follow the standard training or adaptation
+protocol released with each benchmark: they are either SFT-adapted
+on the corresponding training data or evaluated using a publicly
+released target-domain adapted checkpoint. For evaluations conducted
+in this work, we match tasks, initializations, interaction horizons,
+and success criteria within each benchmark and evaluation protocol.
+Test-time evaluation follows the native benchmark protocol;
+LIBERO-SMART uses the protocol specified below. Its evaluation
+instances are not used to adapt any model. The scope of the
+within-model component ablations is described in
+Appendix~\ref{appendix:ablation-details}.
+
+\textbf{LIBERO, LIBERO-Plus, and LIBERO-Pro.} These benchmarks evaluate basic task execution,
+perturbation robustness, and task and position generalization, respectively. In our evaluations, we
+retain their native goal-based success criteria and interaction horizons, using matched tasks and
+initializations across methods within each benchmark.
+
+For each SmartVLA architecture, the same LIBERO-adapted expert is evaluated
+on LIBERO, LIBERO-Plus, LIBERO-Pro, and LIBERO-SMART, without further
+benchmark-specific adaptation. LIBERO-SMART evaluation instances are not
+used in any of these adaptation runs.
+
+\textbf{RoboTwin2.0.} Full adapts on clean and randomized demonstrations and evaluates both scene
+types; Clean2Random (C2R) adapts only on clean demonstrations and evaluates clean and randomized
+scenes. The two protocols use independently adapted experts.
+
+\textbf{LIBERO-SMART.} We evaluate the three instruction-following capabilities using the
+trajectory-level task contracts in Section~\ref{libero-smart}, with matched instances and
+interaction budgets across models within each evaluation protocol. The agentic calling protocol and
+success aggregation rules are detailed in Appendices~\ref{agentic-calling-protocol}
+and~\ref{app:smart-aggregation}.
+
+\textbf{Piper and training.} Piper evaluates instruction-following gains in
+real-world bimanual control. SmartVLA uses a separate expert for each target
+domain following Section~\ref{steering-centric-policy-training}; model and
+execution details are provided in the appendices.
+
+\subsection{Tasks and Initialization Instances}
+\label{app:smart-init}
+
+The benchmark comprises three independently scored suites. The task and
+initialization counts are summarized in Table~\ref{tab:smart-suite-composition}.
+
+\input{tables/table_smart_suite_composition}%
+
+Every task has 10 macro layouts and 5 local initialization variants per
+layout. For language-reference tasks, the target relation must hold in
+the current scene with a unique referent; left/right relations are
+resolved from the task-specified view rather than a fixed object
+identifier. For visual-prompt tasks, cue position, target entity, and
+spatial predicate are updated together for each instance. For Control,
+the expected task phase and required held or completed state are
+preserved while scene placement and feasible robot pose are varied.
+
+\textbf{Controlled initialization for corrective instruction following.}
+For each Control instance, all models begin from the same
+intermediate physical state and are evaluated on their response
+to the corrective instruction. This fixes the robot configuration,
+object arrangement, and required interaction state at the start
+of the evaluated continuation. If each model instead executed
+the preceding stage independently, differences in grasp pose,
+object placement, or incomplete preceding actions could change
+the difficulty of the correction. Standardized initialization
+controls these preceding-stage effects and permits comparison of
+how models execute the updated requirement from the same physical
+starting point. Models receive the same corrective instruction
+and interaction budget within each evaluation protocol.
+
+Validity checks cover key-object visibility, target reachability,
+support and contact relations, and object stability. We exclude
+geometric intersections, unreasonable occlusion, or extra obstacles that
+change instruction meaning. Tasks requiring a new operation exclude
+initial states in which the target is already complete. Holding tasks
+retain the required initial state and test whether the policy maintains
+it during execution. Initial states are specified reproducibly and
+shared across models.
+
+Each Visual Prompt task fixes its cue type and color semantics, while
+initializations vary the object or position referred to by the cue.
+Cue colors are selected according to scene contrast. The markers modify
+only the policy's image inputs and do not alter physical collision
+relations.
+
+Before formal comparisons, representative trajectories are manually
+reviewed to verify that object identity, process constraints, termination,
+and stability clauses are consistent with the task semantics. Physically
+invalid initializations or semantically ambiguous instances are repaired or
+excluded before the final aggregate is computed.
+
+\subsection{Per-Step Trajectory-Contract Satisfaction}
+\label{app:smart-contract}
+
+LIBERO-SMART represents requirements as a trajectory-level contract that
+jointly captures target correctness, process consistency, and result
+stability. For task \(i\), let \(\tau_{\leq t}\) denote the execution
+history through step \(t\). Strict contract satisfaction at that step is
+\begin{equation}
+\label{eq:smart-contract}
+C_i(t)=\mathbf{1}\!\left[G_i(s_t)\land H_i(\tau_{\leq t})\land R_i(\tau_{\leq t})\right],
+\end{equation}
+
+where \(G_i\) requires the current result to satisfy the current
+instruction, \(H_i\) requires applicable object restrictions,
+prohibitions, and step order throughout the observed history, and \(R_i\)
+requires a semantically valid and stable result. These terms answer ``is
+the result correct?'', ``was the instruction followed?'', and ``was the
+task actually completed?'', rather than treating a single transient
+target state as complete instruction following.
+
+Task goals and applicable prohibitions are evaluated from environment
+state and predicates. Requirements involving execution history are
+checked from the trajectory, including forbidden events, state changes
+of protected objects, wrong-object manipulation, and the order of
+multi-step events. Tasks without a corresponding language constraint do
+not receive an additional restriction.
+
+Termination conditions are task-specific. Placement requires release and
+stable support; grasping or holding requires the correct grasp and
+corresponding stable state; switching tasks check device state and
+instruction. Stability checks require applicable state conditions to
+hold for the number of consecutive steps specified by the task.
+Trajectory tasks use more permissive criteria for trajectory matching,
+release, and stability and do not require pointwise replay of the drawn
+curve.
+
+The evaluation interface receives actions generated from images, robot
+state, and the current instruction. Task binding and contract checking
+are performed by an independent evaluator. Additional simulator
+information used to check target and trajectory constraints is not
+provided as policy input.
+
+A forbidden event remains part of the observed history even if the final
+state is later repaired. For example, placing a non-target object in a
+basket and removing it still violates an instruction that forbids placing
+other objects there. Step-order requirements likewise depend on the
+recorded event sequence, not only on the set of completed operations.
+
+\subsection{Interaction Horizon and Success Aggregation}
+\label{app:smart-aggregation}
+
+End-to-end evaluation requires attaining strict success within the
+original interaction horizon and maintaining the task contract for 30
+full subsequent environment action steps, rather than ending the check
+at a single successful state. The policy continues to execute actions
+conditioned on current observations during the holding check.
+
+Let \(C_i(t)\) denote strict contract satisfaction at step \(t\), as
+defined in Equation~(\ref{eq:smart-contract}), and let \(T_i\) denote
+the original interaction horizon. Let \(\mathcal{T}_i\) be the set of
+environment steps in the task's valid evaluation interval that do not
+exceed \(T_i\). The success indicator is
+\begin{equation}
+\label{eq:smart-success-30}
+S_i^{30}=\mathbf{1}\!\left[
+\exists\,t\in\mathcal{T}_i:\quad
+\prod_{k=0}^{30}C_i(t+k)=1
+\right].
+\end{equation}
+
+The holding window in Equation~(\ref{eq:smart-success-30}) may extend beyond the original horizon,
+but must
+start from a successful state at or before \(T_i\) and cover all 30
+subsequent steps; evaluation therefore extends at most to \(T_i+30\).
+Extra steps only complete a holding check and cannot initiate a new
+success window beyond the horizon.
+
+If a candidate window is interrupted without violating history-dependent
+constraints, the policy may attain success again and start another
+window within the original horizon. Object restrictions, forbidden
+events, and step-order history persist throughout the episode and are
+not reset by a retry. Success requires every step in a window to satisfy
+the same strict contract, including applicable history-dependent
+constraints and task-specific stability requirements. If no such window
+exists, the episode fails. Ever-success and strict terminal success are
+distinct auxiliary statistics, not substitutes for this indicator.
+
+For agentic systems, let \(t_i^{\mathrm{end}}\) be the environment step at
+which the budget is exhausted or the upper-level VLM reports completion,
+whichever occurs first. The success indicator is
+\(S_i^{\mathrm{agent}}=C_i(t_i^{\mathrm{end}})\), evaluated independently
+at termination. No additional 30-step window is imposed. The contract's
+task-specific stability and release or holding conditions still apply at
+termination, and history-dependent constraints are checked over the entire
+episode. Neither an earlier successful state nor the VLM's completion
+report alone establishes success. All three agentic systems use this same rule.
+
+As an auxiliary metric, Goal-only records whether the current SMART instruction's positive goals are
+simultaneously satisfied at any post-action state within the episode's original step budget and
+before termination. It preserves the specified objects, targets, and instantaneous spatial
+relations, but omits forbidden-event history, action-order constraints, displacement-preservation
+guards, release checks, velocity thresholds, and stability or holding windows. It is distinct from
+both ever-strict success and success on the original LIBERO task. The column averages this indicator
+over the three suites.
+
+Results are first averaged over initialization instances for each task,
+then aggregated with equal task weight within each suite and equal suite
+weight across the three suites. Within each evaluation protocol, models
+use identical tasks, initializations, interaction budgets, and task
+contracts; the end-to-end and agentic evaluation settings are specified
+in Appendix~\ref{agentic-calling-protocol}.
+
+\subsection{Relationship Between Training Data and Evaluation Tasks}
+\label{app:smart-training-boundary}
+
+During LIBERO target-domain adaptation, supervision is derived
+from the original LIBERO demonstrations. We perform action-aligned
+segmentation and generate local instructions, linguistic rewrites, and
+spatial visual supervision from the corresponding observations and
+action segments; execution trajectories of LIBERO-SMART evaluation
+tasks are not used as training demonstrations. The additional
+supervision therefore expands the instruction expressions and visual
+conditions associated with existing manipulation experience, rather
+than introducing demonstrations collected for the evaluation tasks.
+
+LIBERO-SMART shares LIBERO's basic manipulation skills and scene assets,
+but its evaluation instances do not reuse the corresponding training
+trajectories. The benchmark changes the conditions under which familiar
+skills are invoked through held-out task combinations, language
+conditions, object--target relations, and macro scene layouts. Basic
+primitives such as grasping, lifting, and placement may therefore be
+shared, while their phase-specific combinations and semantic bindings are
+new at evaluation time.
+
+The exact evaluation instructions are new instantiations rather than
+copies of the original episode captions. They combine object roles,
+target relations, ordering, exclusion, and phase-specific termination
+requirements that are not present in the corresponding training
+episodes. Likewise, evaluation visual cues use varied colors and
+locations, and their association with the current object or target is
+changed across instances. Circles, points, regions, and trajectories are
+thus not tied to a fixed coordinate or a fixed object identity.
+
+This separation preserves the controllability provided by familiar
+objects and basic skills while preventing a fixed appearance or
+object--location association from being a sufficient solution. The
+benchmark consequently measures whether the policy can apply learned
+instruction-following patterns to new semantic, relational, and visual
+configurations, rather than directly imitating evaluation trajectories.
+
+

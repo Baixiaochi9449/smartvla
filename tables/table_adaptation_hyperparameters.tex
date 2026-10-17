@@ -1,0 +1,21 @@
+% !TeX root = ../paper.tex
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\normalsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\setlength{\belowcaptionskip}{\baselineskip}
+\captionof{table}{Shared adaptation hyperparameters for SmartVLA-Pi and SmartVLA-OFT, listed by target domain and protocol. Seed denotes the training random seed.}\label{tab:domain-finetuning-hparams}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.300\linewidth}>{\raggedright\arraybackslash}p{0.170\linewidth}>{\raggedright\arraybackslash}p{0.170\linewidth}>{\raggedright\arraybackslash}p{0.160\linewidth}>{\raggedright\arraybackslash}p{0.130\linewidth}@{}}
+\toprule
+Domain / protocol & Updates & Global batch & Peak LR & Seed \\
+\midrule
+LIBERO & 50,000 & 256 & $10^{-5}$ & 42 \\
+RoboTwin Full & 120,000 & 256 & $10^{-5}$ & 42 \\
+RoboTwin C2R & 50,000 & 256 & $10^{-5}$ & 42 \\
+Piper & 50,000 & 64 & $10^{-5}$ & 1000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}

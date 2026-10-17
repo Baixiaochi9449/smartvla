@@ -1,0 +1,66 @@
+% !TeX root = ../paper.tex
+\hypertarget{related-work}{%
+\section{Related Work}\label{related-work}}
+
+\hypertarget{generalist-vision-language-action-policies}{%
+\subsection{Generalist Vision-Language-Action
+Policies}\label{generalist-vision-language-action-policies}}
+
+Generalist VLA models combine the semantic understanding capabilities of vision-language models with
+robot control, improving task execution and generalization through advances in backbones, data
+scale, and action modeling. The RT family demonstrates the scalability of language-conditioned
+policies trained on large-scale robot data~\citep{brohan2022rt,brohan2023rt,openx2023embodiment},
+while OpenVLA integrates an open VLM backbone with robot action
+prediction~\citep{kim2024openvla,kim2025fine}. Building on a flow-matching action expert, the $\pi$
+family combines heterogeneous robot data, high-level semantic prediction, and multimodal co-training
+to improve the open-world generalization and steerability of continuous-action
+policies~\citep{black2024pi,intelligence2025pi,intelligence2025pi06,intelligence2026pi07}. VLA work
+in the Qwen family explores unified alignment of multi-source robot data at the representation,
+action, and behavior levels, as well as the role of data scale and alignment quality in
+generalization across environments, embodiments, and
+instructions~\citep{wang2026qwenvla,yuan2026qwenrobotmanip}. However, task execution and
+generalization performance under task-level instructions do not directly establish whether a policy
+can reliably translate local commands, explicit spatial cues, and requirements updated during
+execution into subsequent actions. SmartVLA complements these efforts without introducing a new
+backbone architecture. Instead, it combines action-aligned data construction with staged training to
+transform existing robot trajectories into semantic and spatial supervision aligned with local
+control phases, learning a mapping from current instructions to local actions that supports
+fine-grained instruction following, responses to spatial cues, and steering during execution.
+
+\hypertarget{agentic-harnesses-and-callable-vla-interfaces}{%
+\subsection{Agentic Harnesses and Callable VLA
+Interfaces}\label{agentic-harnesses-and-callable-vla-interfaces}}
+
+Recent agentic robotic systems organize execution as a closed loop linking high-level reasoning and
+orchestration with low-level skill invocation. Works such as CaP-X~\citep{fu2026capx},
+ASPIRE~\citep{lu2026aspire}, and Zetta~\citep{ding2026zetta} improve task decomposition, memory,
+tool use, and failure handling through code-based policies, skill libraries and search, and runtime
+critique and recovery. Stronger general-purpose multimodal models such as GPT-6
+Astra~\citep{openai2026gpt6astra} further advance long-horizon reasoning, visual state
+understanding, tool use, and dynamic replanning, enabling high-level harnesses to continuously
+orchestrate low-level skills based on current observations and execution feedback. However, stronger
+high-level reasoning and orchestration do not automatically ensure that low-level policies reliably
+follow updated commands and satisfy spatial requirements. SmartVLA complements these efforts: the
+high-level harness handles subgoal generation, skill selection, and plan revision, while SmartVLA
+uses the current command, visual cues, and robot state to translate semantic and spatial
+requirements into local actions and respond to updated instructions in subsequent calls. We compare
+policies under a fixed high-level harness, replacing only the low-level VLA, to assess how low-level
+instruction execution affects system performance without attributing gains from high-level planning,
+prompt engineering, or tool selection to the low-level policy.
+
+\hypertarget{steerable-and-instruction-generalizable-policies}{%
+\subsection{Steerable and Instruction-Generalizable
+Policies}\label{steerable-and-instruction-generalizable-policies}}
+
+Another line of work focuses on fine-grained language, steerability, and instruction generalization.
+FineVLA~\citep{hu2026finevla} uses fine-grained language supervision to provide execution-critical
+details, while Steerable Policies~\citep{chen2026steerable} enables low-level policies to be invoked
+through subtask commands. APT~\citep{xu2026apt} and BeTTER~\citep{xu2026better} investigate issues
+such as sparse language supervision, visual shortcuts, vocabulary-motion associations, and
+behavioral inertia through action-expert pretraining and spatial-layout and temporal interventions,
+respectively. These works collectively emphasize that final task success rates alone cannot
+establish whether the current instruction actually constrains action execution. Following this
+direction, we focus on aligning semantic and spatial supervision with local actions, using data
+construction and training to improve policy responsiveness to fine-grained instructions, explicit
+spatial cues, and instruction updates during execution.
+

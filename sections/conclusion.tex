@@ -1,0 +1,21 @@
+% !TeX root = ../paper.tex
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+We present SmartVLA, a framework for training and evaluating VLA policies
+beyond task-level control. Behavioral and representation diagnostics reveal
+that decodable target information does not necessarily lead to actions
+consistent with the current instruction. To address this gap, SmartVLA
+combines action-aligned semantic and spatial supervision with three-stage
+training, improving fine-grained semantic following, multimodal instruction
+understanding, and mid-execution corrective control. We further introduce LIBERO-SMART, which
+uses diverse initializations and trajectory-level task contracts to
+assess complete instruction following rather than target attainment
+alone. Simulation and real-robot experiments with two policy
+architectures show that SmartVLA improves instruction following and
+generalization while maintaining strong basic task performance. These
+results support fine-grained instruction supervision aligned with action
+segments as an effective approach to improving VLA steerability, enabling
+the same policy to support natural human-robot interaction and serve as a
+flexibly callable control interface in hierarchical robotic systems.
+

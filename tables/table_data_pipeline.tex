@@ -1,0 +1,67 @@
+% !TeX root = ../paper.tex
+\begingroup
+\normalsize
+\setlength{\tabcolsep}{4pt}
+\setlength{\LTcapwidth}{\linewidth}
+\setlength{\LTpre}{\baselineskip}
+\setlength{\LTpost}{\baselineskip}
+\renewcommand{\arraystretch}{1.10}
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.20}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.28}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.32}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.20}}@{}}
+\caption{Seven-stage steering-oriented data construction pipeline.}\label{tab:pipeline}\\
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Stage
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Main evidence
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Operation
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Output
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule
+Stage & Main evidence & Operation & Output \\
+\midrule
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A. Filtering and normalization & language labels, video decodability,
+image quality, state/action statistics & remove unlabeled, low-quality,
+or noisy samples and unify image, state, and action formats & valid
+trajectories in a canonical format \\
+\midrule
+B. Candidate boundary generation & action increments, action curvature,
+gripper events, visual changes, detection and segmentation & extract
+candidate peaks from action/visual curves and merge overly short
+segments by temporal smoothing & candidate control segments \\
+\midrule
+C. Interaction evidence modeling & object masks and tracks,
+gripper-to-target distance, contact evidence, object motion, gripper
+state & infer active object, target region, contact relation, and
+control relevance & interaction curves and spatial candidates \\
+\midrule
+D. Action-first refinement & intermediate records from B/C, task-family
+priors, action segments & refine boundaries, assign a segment grade, and
+bind semantic actions to object relations & action-aligned segment
+records \\
+\midrule
+E. Grade-conditioned rewriting & segment grade, original task, action
+primitive, object/target roles, visual/spatial evidence & select
+applicable rewrite families by grade and generate candidates &
+grade-organized rewrite pool \\
+\midrule
+F. Rewrite sampling metadata & task type, phase, rewrite family, segment
+grade & record recommended sampling weights and applicability conditions
+& typed rewrite pool with sampling metadata \\
+\midrule
+G. VLM review and expansion & keyframes, rewrite candidates, spatial
+candidates & review spatial cues and language rewrites, add constrained
+expressions, and disable unreliable labels & reviewed segment
+annotations \\
+\end{longtable}
+\endgroup

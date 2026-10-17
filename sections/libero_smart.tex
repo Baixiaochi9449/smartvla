@@ -1,0 +1,75 @@
+% !TeX root = ../paper.tex
+\hypertarget{libero-smart}{%
+\section{LIBERO-SMART}\label{libero-smart}}
+
+LIBERO-Pro, LIBERO-Plus, and RoboTwin-IF evaluate generalization across changes in task goals,
+layouts, observations, and language requirements. Such variations are important, but robust task
+completion does not by itself establish that a policy follows the precise scope and execution
+conditions of a current instruction. For example, rephrasing ``pick up the cup and place it on the
+plate'' preserves the intended grasp-and-place sequence, whereas ``only approach the cup'' requires
+suppressing its later stages. LIBERO-SMART makes these distinctions explicit through Semantic,
+Visual Prompt, and Control tasks and instruction-consistent trajectory contracts
+(Figure~\ref{fig:overview}(d)).
+
+\hypertarget{instruction-generalization-over-familiar-skills}{%
+\subsection{Instruction Generalization over Familiar
+Skills}\label{instruction-generalization-over-familiar-skills}}
+
+The benchmark asks whether familiar manipulation capabilities can be invoked under new requirements,
+rather than requiring a new skill for every command. A policy that has learned grasping, transport,
+and placement should be able to select the requested phase, bind its target to the current
+observation, or redirect its continuation. We therefore retain some LIBERO scene assets and basic
+skills while evaluating held-out skill combinations, language conditions, object--target relations,
+and layouts. This separates familiar motor operations from the new conditions governing their use.
+
+Different commands alone cannot exclude solutions based on familiar object locations. Each task
+therefore has 10 substantially different macro layouts and 5 local position and pose variants per
+layout, preserving instruction meaning and physical feasibility while changing object configurations
+and target locations. For Control, models start from the same intermediate physical state within
+each instance, so differences in preceding-stage execution do not change the difficulty of the
+corrective continuation.
+
+Reaching a target also does not establish that the full instruction was followed: a policy may first
+manipulate a forbidden object, execute steps in the wrong order, or immediately undo the intended
+result. Task contracts therefore jointly assess target correctness, process constraints, and result
+stability, including applicable prohibitions, step-order constraints, and release or holding
+requirements. Together, tasks, initializations, and contracts test whether improved
+instruction--action correspondence yields complete instruction execution. Training--evaluation
+separation and detailed construction and scoring rules are provided in
+Appendix~\ref{appendix:smart-benchmark}.
+
+\hypertarget{three-task-suites}{%
+\subsection{Three Task Suites}\label{three-task-suites}}
+
+LIBERO-SMART comprises three independently scored suites, Semantic,
+Visual Prompt (Vis), and Control, with 40 tasks per suite and 50
+initializations per task, totaling 6,000 evaluation
+instances. Both direct policies and agentic systems are evaluated using
+the same trajectory-level task contracts.
+
+\textbf{Semantic.} This suite evaluates fine-grained semantic following
+through requirements on the manipulated object, action scope, and
+termination condition. It covers equivalent
+semantic rewrites, designated subtasks of a complete episode, standalone
+atomic actions, and logical constraints on object exclusivity, spatial
+relations, pose, and order. For example, when an instruction only
+requests picking up an object, subsequently placing it in the original
+task container violates the requirement.
+
+\textbf{Visual Prompt.} This suite evaluates multimodal instruction
+understanding by testing whether models can bind explicit image cues to
+the current object or spatial target. Cues include circles
+identifying objects to manipulate, circles defining placement regions,
+points specifying target locations, and trajectories guiding motion.
+They refer to the current object or location in each initialization and
+remain consistent with the language instruction and target evaluation.
+
+\textbf{Control.} Starting from an intermediate physical state, this
+suite evaluates mid-execution corrective control by testing whether
+models adjust subsequent behavior according to a new instruction. Target correction changes the
+intended final result, for
+example redirecting a held object to another target. Process re-planning
+changes how subsequent actions are executed, for example holding
+stably, reversing an operation, or retaining completed parts while
+rearranging the remaining steps.
+

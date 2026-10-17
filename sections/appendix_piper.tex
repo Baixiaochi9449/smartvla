@@ -1,0 +1,34 @@
+% !TeX root = ../paper.tex
+\section{Real-Robot Piper Evaluation Details}
+\label{appendix:real-robot-piper}
+
+\subsection{Experimental Platform and Configuration}
+\label{app:piper-platform}
+
+The real-robot experiments use a bimanual Piper setup. Table~\ref{tab:piper-setup}
+summarizes the experimental platform, sensing and control settings, and evaluation scale.
+
+\input{tables/table_piper_setup}%
+
+\subsection{Task Composition and Trial Arrangement}
+\label{app:piper-tasks}
+
+Semantic, Visual Prompt, and Control each contain 10 tasks, with 20 trials per
+task, for a total of 600 trials per model.
+
+The representative trajectories below use one task from each category:
+folding a towel from bottom to top (Semantic), placing the bowl marked by a
+red circle on the shelf (Visual Prompt), and changing the Control instruction
+during execution from placing a sticker on top of a box to placing it on
+the front. 
+
+\subsection{Representative Execution Trajectories}
+\label{app:piper-trajectories}
+
+Each category is illustrated by one representative execution video. Frames
+within each contact sheet are ordered from left to right and then from top
+to bottom, providing a compact summary of the corresponding behavior.
+
+% Keep the three equally sized real-robot sequences on one page.
+\input{figures/fig_piper_trajectories}%
+

@@ -1,0 +1,41 @@
+% !TeX root = ../paper.tex
+\begingroup
+\normalsize
+\setlength{\tabcolsep}{4pt}
+\setlength{\LTcapwidth}{\linewidth}
+\setlength{\LTpre}{\baselineskip}
+\setlength{\LTpost}{\baselineskip}
+\renewcommand{\arraystretch}{1.10}
+\begin{longtable}{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.25}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.75}}@{}}
+\caption{Definitions of the SmartVLA-Pi ablation settings.}\label{tab:ablation-settings}\\
+\toprule
+Setting & Removed or changed component \\
+\midrule
+\endfirsthead
+\toprule
+Setting & Removed or changed component \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
+Full SmartVLA-Pi & warmup, pretraining, and adaptation with all steering-oriented supervision \\
+\midrule
+w/o warmup & Skip image-free warmup \\
+\midrule
+w/o pretraining & Skip pretraining and adapt from the warmup checkpoint \\
+\midrule
+From raw VLM & Skip SmartVLA's warmup and pretraining and begin target-domain training from the original VLM weights; retain the full method's adaptation data processing and steering supervision \\
+\midrule
+Raw-data adaptation & Retain the warmup and pretraining weights, but fine-tune directly on the corresponding benchmark's original demonstrations and task instructions, without action-aligned segmentation, local-instruction rewriting, or spatial visual annotation \\
+\midrule
+Uniform segmentation & Replace action-aligned segmentation with fixed-interval temporal cuts, approximately matching the full method's segment count and mean length; retain the subsequent annotation and training procedures \\
+\midrule
+w/o grade conditioning & Retain the three rewrite families but remove the High/Mid/Low rules governing which families are used; apply a common rewriting rule while retaining semantic and visual consistency review \\
+\midrule
+Fine-grained sem. only & Two-stage pretraining and adaptation using fine-grained language rewrites on complete trajectories in both stages; no warmup, action-aligned local segmentation, or visual-prompt supervision \\
+\end{longtable}
+\endgroup

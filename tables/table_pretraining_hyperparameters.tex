@@ -1,0 +1,35 @@
+% !TeX root = ../paper.tex
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\normalsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\setlength{\belowcaptionskip}{\baselineskip}
+\captionof{table}{Shared warmup and pretraining hyperparameters for SmartVLA-Pi and SmartVLA-OFT. Stage-specific values are indicated explicitly.}\label{tab:pretraining-hparams}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.460\linewidth}>{\raggedright\arraybackslash}p{0.490\linewidth}@{}}
+\toprule
+Parameter & Shared configuration \\
+\midrule
+Trainable modules during warmup & Action head; VLM backbone frozen \\
+Trainable modules during pretraining & All components; no freezing \\
+Original/local instruction sampling (pretraining and adaptation) & 1:1 effective probability; not applicable to warmup \\
+Hardware & $16\times$ NVIDIA A100 \\
+Effective global batch size & 256 \\
+Optimizer & Fused AdamW \\
+Peak learning rate (warmup / pretraining) & $5\times10^{-5}$ / $10^{-5}$ \\
+Adam coefficients $(\beta_1,\beta_2)$ & $(0.9,0.95)$ \\
+Optimizer epsilon & $10^{-8}$ \\
+Weight decay & 0.1 \\
+Learning-rate schedule & \texttt{cosine\_with\_min\_lr} \\
+Learning-rate warmup ratio & 0.01 \\
+Gradient-clipping threshold & 1.0 \\
+TF32 & Enabled \\
+Parallelism & DeepSpeed ZeRO-2 \\
+State normalization (\texttt{state\_mode}) & \texttt{QUANTILE} (Q01--Q99) \\
+Training random seed & 42 \\
+Optimizer updates (warmup / pretraining) & 10,000 / 240,000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}

@@ -1,0 +1,33 @@
+% !TeX root = ../paper.tex
+\begin{table}[htbp]
+\centering
+\setlength{\abovecaptionskip}{0pt}
+\setlength{\belowcaptionskip}{\baselineskip}
+\caption{LIBERO-SMART success rates (\%). $\dagger$ denotes an agentic system.}
+\label{tab:libero-smart}
+\label{tab:agentic-smart}
+\nointerlineskip
+\normalsize
+\setlength{\tabcolsep}{3.6pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Method & Sem & Vis & Con & Avg. & Goal-only \\
+\midrule
+OpenVLA-OFT & 1.45 & 0.30 & 1.15 & 0.97 & 1.65 \\
+$\pi_{0}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.85 \\
+$\pi_{0.5}$ & 14.70 & 2.00 & 4.85 & 7.18 & 17.92 \\
+X-VLA & 0.00 & 0.00 & 0.00 & 0.00 & 0.55 \\
+GR00T N1.6 & 8.35 & 0.80 & 1.00 & 3.38 & 13.22 \\
+StarVLA & 12.60 & 1.95 & 4.00 & 6.18 & 15.62 \\
+CaP-X$^\dagger$ & 12.75 & 6.75 & \textbf{21.25} & 13.58 & 18.33 \\
+Agentic+$\pi_{0.5}^{\dagger}$ & 17.75 & 3.50 & 14.25 & 11.83 & 18.22 \\
+\midrule
+\rowcolor{smartvlarow}
+\textbf{SmartVLA-Pi} & 23.05 & \textbf{8.40} & 12.55 & 14.67 & 29.73 \\
+\rowcolor{smartvlarow}
+\textbf{SmartVLA-OFT} & 20.10 & 5.55 & 16.45 & 14.03 & 32.73 \\
+\rowcolor{smartvlarow}
+\textbf{Agentic+SmartVLA-Pi$^\dagger$} & \textbf{26.50} & 7.00 & 19.50 & \textbf{17.67} & \textbf{37.97} \\
+\bottomrule
+\end{tabular}
+\end{table}

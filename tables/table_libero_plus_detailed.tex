@@ -1,0 +1,32 @@
+% !TeX root = ../paper.tex
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\setlength{\belowcaptionskip}{\baselineskip}
+\captionof{table}{LIBERO-Plus success rates (\%). Overall is the episode-weighted
+aggregate over the seven perturbation categories.}
+\label{tab:libero-plus}
+\normalsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+Method & Camera & Robot & Language & Light & Bg. & Noise & Layout & Overall \\
+\midrule
+OpenVLA & 0.80 & 3.50 & 23.00 & 8.10 & 50.40 & 15.20 & 28.50 & 17.28 \\
+OpenVLA-OFT & 56.40 & 31.90 & 79.50 & 88.70 & 97.30 & 75.80 & 74.20 & 70.02 \\
+$\pi_{0}$ & 13.80 & 6.00 & 58.80 & 85.00 & 90.70 & 79.00 & 68.90 & 54.63 \\
+$\pi_{0.5}$ & 64.80 & 71.80 & 83.00 & 93.50 & 92.20 & 78.80 & \textbf{85.50} & 80.26 \\
+X-VLA & 23.40 & \textbf{89.70} & 75.70 & 88.20 & 96.00 & 62.70 & 71.80 & 70.46 \\
+StarVLA & 48.70 & 63.40 & 86.80 & 95.80 & 94.60 & 75.00 & 80.20 & 76.08 \\
+ABot-M0 & 60.40 & 67.90 & 86.40 & \textbf{96.20} & 91.60 & 86.40 & 82.60 & 80.49 \\
+APT & 16.57 & 44.58 & 59.47 & 76.44 & 78.72 & 63.52 & 65.25 & 55.85 \\
+\midrule
+\rowcolor{smartvlarow}
+\textbf{SmartVLA-Pi} & \textbf{68.70} & 74.70 & 87.20 & 94.50 & \textbf{97.90} & \textbf{89.90} & 82.40 & \textbf{84.00} \\
+\rowcolor{smartvlarow}
+\textbf{SmartVLA-OFT} & 66.30 & 72.50 & \textbf{88.50} & 96.10 & 96.70 & 83.10 & 84.50 & 82.76 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}

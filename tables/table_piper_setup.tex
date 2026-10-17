@@ -1,0 +1,24 @@
+% !TeX root = ../paper.tex
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\normalsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\belowcaptionskip}{\baselineskip}
+\captionof{table}{Piper real-robot sensing, execution, and evaluation configuration.}\label{tab:piper-setup}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.38\linewidth}>{\raggedright\arraybackslash}p{0.56\linewidth}@{}}
+\toprule
+Parameter & Configuration \\
+\midrule
+Robot platform & Bimanual Piper setup \\
+RGB acquisition resolution & Main view and two wrist-mounted views, each at $640\times480$ \\
+Camera and control frequency & 30~FPS per camera, matched to the robot control frequency \\
+Predicted action chunk length & 50 control steps \\
+Executed actions per prediction & 25 control steps \\
+Task and trial counts & 10 tasks per capability, 20 trials per task \\
+Episode budget & 1,000 control steps \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}

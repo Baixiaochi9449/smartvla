@@ -1,0 +1,50 @@
+% !TeX root = ../paper.tex
+\section{Ablation Protocol Details}
+\label{appendix:ablation-details}
+
+The standard component ablations use SmartVLA-Pi and the same
+target-domain source trajectories, adaptation update count,
+random seeds, evaluation instances, and trajectory-level success
+contract as the full SmartVLA-Pi model. Table~\ref{tab:ablation-settings}
+defines the settings evaluated in Table~\ref{tab:ablation}.
+
+The ablations address three aspects of the training framework.
+Stage-removal experiments evaluate the contribution of each
+stage to the complete training procedure, including the training
+exposure associated with that stage. Data-construction controls
+examine the choices used to form local supervision: uniform
+segmentation changes the temporal boundaries, while removing
+grade conditioning changes the applicability rules for instruction
+families. The raw-data adaptation control tests whether local
+instruction supervision remains important during target-domain
+adaptation. The fine-grained semantic-only setting examines whether
+enriching whole-trajectory language is sufficient to obtain the
+instruction-following gains of the full framework. It applies
+fine-grained rewrites to complete trajectories during pretraining
+and adaptation, without warmup, action-aligned local segmentation,
+or visual-prompt supervision. This setting implements a
+FineVLA-inspired supervision strategy within our experimental
+pipeline.
+
+\input{tables/table_ablation_settings}%
+
+The two data-construction controls each change only the specified
+component and retain original complete-task supervision and the
+original-to-local supervision sampling ratio. Uniform temporal
+segmentation approximately matches the full method's segment
+count and mean length, with subsequent annotation and training
+procedures retained. Its average success rate of 7.45\%, compared
+with 14.67\% for the full model, supports the importance of
+aligning segment boundaries with control phases. Removing grade
+conditioning yields 12.25\%, supporting the use of
+interaction-dependent instruction families.
+
+The fine-grained semantic-only setting reaches 7.00\% on average,
+showing that whole-trajectory language enrichment alone does not
+recover the full framework's gains in this setting. The temporal
+segmentation and grade-conditioning controls provide more
+targeted evidence for the roles of local alignment and rewriting
+applicability. Together, these comparisons support the design
+of action-aligned, grade-conditioned supervision for local
+instruction following.
+

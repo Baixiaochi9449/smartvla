@@ -1,0 +1,37 @@
+% !TeX root = ../paper.tex
+\begingroup
+\normalsize
+\setlength{\tabcolsep}{4pt}
+\setlength{\LTcapwidth}{\linewidth}
+\setlength{\LTpre}{\baselineskip}
+\setlength{\LTpost}{\baselineskip}
+\renewcommand{\arraystretch}{1.10}
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.18}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.25}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.15}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.42}}@{}}
+\caption{Public raw trajectory sources used to construct the training pool.}\label{tab:raw-sources}\\
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Public raw trajectories / sequences
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Tasks
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Collection coverage
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+DROID & 76K & 86 tasks & 564 scenes; single-arm Franka \\
+MolmoAct & 10k & 93 tasks & home and tabletop; single-arm
+Franka \\
+AgiBot-World & 1,001k & 217 tasks & 106
+scenes; 100 real robots \\
+RH20T & 110K & 147 tasks & 7 configurations
+across 4 robot types \\
+\end{longtable}
+\endgroup

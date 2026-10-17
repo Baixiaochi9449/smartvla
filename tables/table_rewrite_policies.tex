@@ -1,0 +1,40 @@
+% !TeX root = ../paper.tex
+\begingroup
+\normalsize
+\setlength{\tabcolsep}{4pt}
+\setlength{\LTcapwidth}{\linewidth}
+\setlength{\LTpre}{\baselineskip}
+\setlength{\LTpost}{\baselineskip}
+\renewcommand{\arraystretch}{1.10}
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.10}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.36}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.18}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.18}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.18}}@{}}
+\caption{Grade-conditioned instruction rewrite applicability.}\label{tab:rewrite-policies}\\
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Grade
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Typical phase
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Object-free atomic motion
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Synonym/task rewrite
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Spatial visual generalization
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Low & free-space motion, reset, recovery, generic movement & yes & yes &
+no \\
+\midrule
+Mid & reach, align, transport, approach, retreat & yes & yes & yes \\
+\midrule
+High & grasp, place, insert, press, open/close contact & no & yes &
+yes \\
+\end{longtable}
+\endgroup

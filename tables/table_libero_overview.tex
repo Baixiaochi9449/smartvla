@@ -1,0 +1,31 @@
+% !TeX root = ../paper.tex
+\begin{table}[!htb]
+\centering
+% The float already provides the separation from the preceding text or heading.
+\setlength{\abovecaptionskip}{0pt}
+\setlength{\belowcaptionskip}{\baselineskip}
+\caption{Success rates on LIBERO, LIBERO-Plus, and LIBERO-Pro. $\dagger$ denotes an agentic system.}
+\label{tab:libero-overview}
+\label{tab:libero-pro}
+\normalsize
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Method & LIBERO & LIBERO-Plus & Pro-Pos. & Pro-Task & Pro-Avg. \\
+\midrule
+OpenVLA & 76.50 & 17.28 & 0.00 & 0.00 & 0.00 \\
+OpenVLA-OFT & 97.10 & 70.02 & 5.75 & 0.63 & 3.19 \\
+$\pi_{0}$ & 94.15 & 54.63 & 0.00 & 0.00 & 0.00 \\
+$\pi_{0.5}$ & 96.85 & 80.26 & 20.75 & 0.75 & 10.75 \\
+X-VLA & 98.05 & 70.46 & 0.75 & 6.75 & 3.75 \\
+StarVLA & 96.60 & 76.08 & 4.30 & 3.90 & 4.10 \\
+APT & 72.25 & 55.85 & 27.00 & 27.75 & 27.38 \\
+CAP-X$^\dagger$ & -- & -- & 20.00 & 16.33 & 18.17 \\
+\midrule
+\rowcolor{smartvlarow}
+\textbf{SmartVLA-Pi} & \textbf{98.30} & \textbf{84.00} & 30.95 & 32.35 & 31.65 \\
+\rowcolor{smartvlarow}
+\textbf{SmartVLA-OFT} & 98.20 & 82.76 & \textbf{31.50} & \textbf{36.10} & \textbf{33.80} \\
+\bottomrule
+\end{tabular}
+\end{table}

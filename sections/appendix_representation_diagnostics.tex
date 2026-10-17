@@ -1,0 +1,72 @@
+% !TeX root = ../paper.tex
+\section{Representation Probe Diagnosis Protocol}
+\label{appendix:representation-diagnostics}
+
+\subsection{Probe Setup and Paired Interventions}
+
+The probes test whether failures of instruction following coexist with accessible target information
+in the action-trained representations. If this information is absent, strengthening its
+correspondence with actions alone cannot exploit an existing semantic representation. Conversely,
+reliable decoding motivates supervision that links the available information to the required
+behavior. The probes measure accessibility in the final frozen policies, rather than changes from
+their original VLMs or the causal contribution of an individual action head.
+
+We freeze $\pi_{0.5}$, GR00T N1.6, and StarVLA and train a common-form
+conditional target-point probe over each model's multimodal fusion
+representation. The probe receives language and visual representations
+associated with the current command and predicts a two-dimensional target
+point. Behavior and probe results use the same paired instances.
+
+Sem switches fine-grained commands while holding image and robot state
+fixed, testing whether the target representation changes with semantics.
+Vis changes scene layout or moves an explicit visual cue, testing whether
+the representation binds to the current visual position. Con switches
+target commands in an action-contrast subset, testing whether the internal
+target representation updates with the control requirement. Sem uses
+fine-grained commands from the original task templates, Vis uses explicit
+visual targets under a unified protocol, and Con uses paired commands in
+the action-contrast subset.
+
+All three models use matched instance pairs, target annotations, and probe-training
+budgets; the feature location is selected at the corresponding multimodal
+fusion layer.
+
+\subsection{Representation Metrics}
+
+Let $\hat{\mathbf{x}}$ be the predicted target point, $\mathbf{x}$ the
+current target, and $\mathbf{x}'$ the alternative candidate, expressed in
+the same evaluation-image coordinate system. The per-instance target-point
+error is $e=\lVert\hat{\mathbf{x}}-\mathbf{x}\rVert_2$ in pixels. Target
+assignment measures the proportion of predictions satisfying
+$\lVert\hat{\mathbf{x}}-\mathbf{x}\rVert_2 <
+\lVert\hat{\mathbf{x}}-\mathbf{x}'\rVert_2$; its two-choice reference is
+50\%, and it is distinct from behavioral object selection or task completion.
+Representation response direction measures agreement between the change
+in predicted target position and the true target displacement across a
+paired language or visual intervention.
+
+These metrics measure the readability of target information in frozen
+representations and its response to interventions. They do not directly
+measure whether actions follow that information and are therefore
+interpreted jointly with the behavioral results in Appendix~\ref{behavioral-diagnosis}.
+
+\subsection{Results and Interpretation}
+\label{representation-diagnosis}
+
+\Needspace{0.28\textheight}
+\input{tables/table_diagnostics}%
+
+Table~\ref{tab:diagnostics} reports the paired behavioral and representation diagnostics. Target
+assignment rates are 96.63--98.82\% under Sem, 83.80--92.11\% under Vis, and 89.64--97.50\% under
+Con, all above the 50\% two-choice reference. The corresponding response-direction scores are
+0.927--0.981, 0.832--0.896, and 0.877--0.978. These results indicate that the frozen representations
+retain decodable target information that varies with fine-grained commands, explicit visual prompts,
+and updated control requirements.
+
+However, decodability does not imply that the policy effectively uses this information to generate
+actions. The low behavioral completion rates, despite positive target-assignment and
+response-direction results, reveal a gap between target information in the representations and
+execution that follows the current instruction. This contrast supports action-aligned supervision
+connecting current instructions and visual prompts to local actions, but does not by itself
+establish complete instruction understanding or identify a unique cause of execution failure.
+

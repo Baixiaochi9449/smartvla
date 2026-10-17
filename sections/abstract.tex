@@ -1,0 +1,18 @@
+% !TeX root = ../paper.tex
+\begin{abstract}
+Existing vision-language-action (VLA) models can perform diverse manipulation tasks from task-level
+instructions, but strong task performance does not ensure fine-grained semantic following,
+multimodal instruction understanding, or mid-execution corrective control. To this end, we propose
+SmartVLA, which constructs semantic and spatial supervision through action-aligned segmentation and
+grade-conditioned instruction augmentation, and combines warmup, pretraining, and adaptation to
+explicitly learn the mapping from current instructions to local actions. The resulting unified
+instruction interface supports natural human steering and enables SmartVLA to serve as a low-level
+control interface for higher-level agentic systems. To systematically assess these three
+capabilities, we introduce LIBERO-SMART, a benchmark comprising Semantic, Visual Prompt, and Control
+suites with 120 tasks and 6,000 evaluation instances. We also evaluate basic task performance,
+generalization across distributions, and real-world deployment on LIBERO, LIBERO-Plus, LIBERO-Pro,
+RoboTwin, and the Piper real-robot platform. Experiments show that SmartVLA preserves strong task
+performance while more reliably following diverse instructions, visually specified commands, and
+instructions updated during execution.
+\end{abstract}
+

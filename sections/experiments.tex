@@ -1,0 +1,136 @@
+% !TeX root = ../paper.tex
+\hypertarget{experiments}{%
+\section{Experiments}\label{experiments}}
+
+Unless otherwise specified, SmartVLA results are reported using the corresponding
+target-domain-adapted experts. For LIBERO, LIBERO-Plus, LIBERO-Pro, and RoboTwin2.0, we follow the
+evaluation settings released with each benchmark. LIBERO-SMART task contracts and scoring are
+specified in Appendix~\ref{appendix:smart-benchmark}; the Piper real-robot protocol is described in
+Appendix~\ref{appendix:real-robot-piper}. The overall evaluation scope is summarized in
+Figure~\ref{fig:overview}(d). All success rates are reported as percentages.
+
+\subsection{LIBERO-SMART}\label{libero-smart-1}
+
+\input{tables/table_libero_smart}%
+
+\Needspace{14\baselineskip}
+\input{figures/fig3_behavior_diagnosis}%
+
+% Start the wrapped paragraph without overriding the style's line-breaking settings.
+\begingroup
+\leavevmode
+Table~\ref{tab:libero-smart} evaluates whether SmartVLA improves the three instruction-following
+capabilities targeted by our method. In direct-policy evaluation, SmartVLA-Pi and SmartVLA-OFT
+achieve average success rates of 14.67\% and 14.03\%, compared with 7.18\% for $\pi_{0.5}$, with
+improvements across all three suites. The Semantic gains indicate better execution of local commands
+and instruction-specific constraints; the Visual Prompt gains reflect improved use of visually
+specified objects and target locations; and the Control gains show better adjustment to commands
+issued during execution. These improvements are consistent with learning segment-aligned commands
+and visual prompts as conditions for subsequent actions. Under Goal-only scoring, which checks
+any-time goal attainment without the additional contract requirements, the two variants also improve
+from 17.92\% for $\pi_{0.5}$ to 29.73\% and 32.73\%. Their advantage therefore extends beyond the
+strict scoring criterion.
+\par
+\endgroup
+
+\paragraph{Behavioral diagnosis.}
+
+Figure~\ref{fig:smartvla-behavior} revisits the motivating interventions with SmartVLA-Pi.
+Instruction-completion rates increase from 6.00\%, 5.00\%, and 25.00\% for $\pi_{0.5}$ to 54.00\%,
+47.00\%, and 55.00\% on Semantic, Visual Prompt, and Control, respectively, while original-task
+completion remains at 99.00\%. This comparison connects the benchmark improvements to more reliable
+execution of local instructions, visual prompts, and command updates.
+
+Under a fixed agentic protocol, replacing $\pi_{0.5}$ with SmartVLA-Pi raises strict system success
+from 11.83\% to 17.67\% and Goal-only success from 18.22\% to 37.97\%. Thus, improved low-level
+instruction following also benefits systems that invoke the policy through an upper-level
+controller. Calling and scoring protocols are detailed in Appendices~\ref{agentic-calling-protocol}
+and~\ref{app:smart-aggregation}.
+
+\subsection{Generalization on Simulation Benchmarks}\label{simulation-benchmarks}
+
+\paragraph{LIBERO, LIBERO-Plus, and LIBERO-Pro.}\label{libero-benchmarks}
+
+\input{tables/table_libero_overview}%
+
+Table~\ref{tab:libero-overview} examines task performance and generalization on benchmarks developed
+independently of LIBERO-SMART. SmartVLA-Pi and SmartVLA-OFT achieve 98.30\% and 98.20\% on LIBERO,
+exceeding X-VLA~\citep{zheng2025xvla} (98.05\%) while retaining strong basic manipulation
+performance. On LIBERO-Plus, they reach 84.00\% and 82.76\%, above $\pi_{0.5}$ (80.26\%) and APT
+(55.85\%). On LIBERO-Pro, both variants outperform APT on Position and Task, reaching averages of
+31.65\% and 33.80\% compared with 27.38\%, while also substantially exceeding APT's original LIBERO
+performance of 72.25\%. These results show improved robustness to benchmark perturbations and
+changes in task goals and scene layouts without a loss of strong original-task performance. Detailed
+results are provided in Appendix~\ref{appendix:benchmark-details}.
+
+\paragraph{RoboTwin2.0.}\label{robotwin2.0}
+
+\input{tables/table_robotwin}%
+
+Table~\ref{tab:robotwin} extends the evaluation to bimanual manipulation. Under Full, which includes
+randomized scenes during adaptation, SmartVLA-Pi and SmartVLA-OFT achieve average success rates of
+89.79\% and 89.00\%, exceeding StarVLA (88.25\%) and ABot-M0~\citep{yang2026abotm0} (85.60\%). Under
+Clean2Random, adaptation uses only clean demonstrations, yet the two variants reach averages of
+67.05\% and 66.55\%, compared with 58.35\% for $\pi_{0.5}$. Their success rates on randomized test
+scenes reach 58.40\% and 59.08\%, respectively, versus 46.00\% for $\pi_{0.5}$, demonstrating
+stronger transfer to unseen scene configurations.
+
+Together, these results show that the benefits are not confined to a benchmark explicitly designed
+around our three instruction-following capabilities. Improvements on independently developed task
+and generalization benchmarks support the broader value of aligning language and visual supervision
+with local actions.
+
+\subsection{Ablation Studies}\label{ablation-studies}
+
+\begingroup
+\setlength{\parskip}{0pt}
+Table~\ref{tab:ablation} examines the contributions of training stages and supervision construction.
+Removing warmup or pretraining, or adapting directly from the original VLM, reduces performance,
+supporting the three-stage procedure. Adaptation using only original demonstrations also degrades
+performance, indicating that local instruction supervision remains important in the target domain.
+
+\Needspace{18\baselineskip}
+\input{tables/table_ablation}%
+
+Uniform temporal segmentation reduces average success from 14.67\% to 7.45\%, supporting alignment
+with control phases rather than merely annotating shorter trajectories. Removing grade conditioning
+further weakens performance. The FineVLA-inspired fine-grained semantic-only setting reaches 7.00\%,
+indicating that enriching whole-trajectory language alone does not recover the benefits of the full
+construction. These comparisons support the roles of action-aligned segmentation, phase-appropriate
+rewriting, and staged training; setting definitions are provided in
+Appendix~\ref{appendix:ablation-details}.
+\par
+\endgroup
+
+\subsection{Real-Robot Piper Evaluation}\label{real-robot-piper-evaluation}
+
+\Needspace{12\baselineskip}
+\input{figures/fig4_piper_results}%
+
+% Retain the style's line-breaking settings in the wrapped paragraph.
+\begingroup
+\leavevmode
+Beyond simulation, we evaluate fine-grained semantic following, multimodal instruction
+understanding, and mid-execution corrective control on a bimanual Piper platform.
+Each category contains
+10 tasks, with 20 trials per task, for a total of 600 trials per model. The
+tasks build on basic operations such as grasping, placing, moving, and
+holding, varying language requirements, visual targets, or commands during
+execution to test whether policies adjust their behavior to the current
+instruction. Models use matched tasks, initial conditions, and interaction
+budgets, with results reported separately for the three capabilities in
+Figure~\ref{fig:piper-results}. Representative execution
+trajectories are provided in Appendix~\ref{appendix:real-robot-piper}.
+\par
+\endgroup
+
+In the bimanual Piper evaluation, SmartVLA-Pi and SmartVLA-OFT achieve
+average success rates of 58.50\% and 54.00\%, respectively, exceeding
+the strongest baseline, $\pi_{0.5}$ (45.00\%), by 13.50 and 9.00 percentage
+points. On Semantic, Visual Prompt, and Control, the best result across
+the two variants exceeds $\pi_{0.5}$ by 11.50, 7.50, and 26.00 percentage
+points, respectively. These results show that SmartVLA also improves
+fine-grained semantic following, multimodal instruction understanding,
+and mid-execution corrective control in real-robot manipulation, rather
+than only improving performance on simulation benchmarks.
+
