@@ -1,0 +1,20 @@
+# macOS metadata
+.DS_Store
+
+# LaTeX build intermediates
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv
+*.blg
+
+# Temporary editor files
+*.swp
+*.swo
+*~
