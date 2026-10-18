@@ -13,6 +13,7 @@
 *.synctex.gz
 *.xdv
 *.blg
+/output/pdf/*.bbl
 
 # Temporary editor files
 *.swp

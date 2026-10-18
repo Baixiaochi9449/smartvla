@@ -57,6 +57,26 @@ reference/                历史论文快照
 在 Overleaf 中上传整个项目，选择 `paper.tex` 作为主文件，编译器选择 **pdfLaTeX**。
 保留项目内的 `iclr2027_conference.sty` 和 `iclr2027_conference.bst`。
 
+### VS Code / LaTeX Workshop
+
+本项目的 `.vscode/settings.json` 已配置使用本机安装的
+`/opt/homebrew/bin/tectonic`，不依赖 `latexmk` 或单独安装的 TeX Live。
+请在 VS Code 中打开整个项目文件夹，然后打开 `paper.tex`，执行
+**LaTeX Workshop: Build LaTeX project**。默认编译配方为 `tectonic`，保存 `.tex`
+文件也会自动编译。所有子文件中的主文件声明均指向 `paper.tex`。
+
+PDF 输出到 `output/pdf/paper.pdf`，日志和 SyncTeX 文件也在 `output/pdf/`。
+Tectonic 自动运行 BibTeX 并按需重复编译；首次使用时可能需要联网下载宏包。
+主文件显式选择 OT1 字体编码，使 Tectonic/XeTeX 使用与 pdfLaTeX 模板一致的 Times 字体。
+
+也可以在项目根目录通过终端编译：
+
+```bash
+/opt/homebrew/bin/tectonic --synctex --keep-logs --keep-intermediates --outdir=output/pdf paper.tex
+```
+
+### TeX Live / pdfLaTeX
+
 本地安装 TeX Live 后，从项目根目录执行：
 
 ```bash
@@ -66,5 +86,5 @@ pdflatex paper.tex
 pdflatex paper.tex
 ```
 
-`output/pdf/paper.pdf` 是已有的编译快照；修改源文件不会自动更新该文件。
+使用上述 Tectonic 配方编译后，`output/pdf/paper.pdf` 会更新为当前版本。
 当前保持匿名投稿模式，`\iclrfinalcopy` 仍被注释。

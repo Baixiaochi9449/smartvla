@@ -18,8 +18,10 @@ The manuscript remains in anonymous submission mode. The directory split
 preserves scientific text, numerical results, labels, and manuscript order.
 See README.md for the section map and local pdfLaTeX build commands.
 
-output/pdf/paper.pdf and reference/paper_submission_snapshot.pdf are existing
-PDF snapshots, not source entry points. Recompile after editing the sources.
+For local VS Code builds, .vscode/settings.json selects Tectonic and writes
+the current PDF to output/pdf/paper.pdf. See README.md for local setup.
+reference/paper_submission_snapshot.pdf remains the historical PDF snapshot.
+Compile paper.tex rather than either PDF or an individual section file.
 
 If Overleaf produces different page breaks, first check the main document,
 compiler, and TeX Live selection, then use Recompile from scratch.

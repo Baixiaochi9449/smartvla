@@ -48,22 +48,18 @@ policies are not smart enough to serve as reliable low-level controllers, hinder
 of high-level plans and human corrections into flexible, responsive behavior in the physical world.
 
 %我觉得中间缺了一个东西，从现象到原因的分析，就是下面的猜想的初步验证，比如切分指令后训练确实有效果。%
-A plausible explanation is that task-level supervision pairs a single instruction $l$ with an entire
-action sequence, $l\mapsto(\mathbf a_1,\dots,\mathbf a_T)$, providing little explicit guidance on
-which parts of $l$ govern each local action $\mathbf a_t$. To test this conjecture, we instead
-segment demonstrations at control-phase boundaries into $K$ consecutive segments ($l_1,l_2,..,l_K$),
-and pair each local instruction with only its own segment of actions, replacing $l\mapsto(\mathbf
-a_1,\dots,\mathbf a_T)$ with $l_1\mapsto(\mathbf a^{1}_{1},\dots,\mathbf a^{1}_{L_1})$,
-$l_2\mapsto(\mathbf a^{2}_{1},\dots,\mathbf a^{2}_{L_2})$, $\dots$, $l_K\mapsto(\mathbf
-a^{K}_{1},\dots,\mathbf a^{K}_{L_K})$. In a small-scale training comparison, enriching instruction
-annotations for complete trajectories yields success rates of
-23\%, 16\%, and 32\% in the fine-grained, visual-prompt, and
-corrective-control settings, respectively; simple trajectory
-segmentation followed by segment-aligned annotation further
-improves these rates to 35\%, 21\%, and 44\%.
-These results suggest that richer instruction annotations help,
-but explicitly aligning instructions with local action segments
-provides additional benefits beyond language enrichment alone.
+A plausible explanation is that task-level supervision pairs a single instruction with an entire
+action sequence but provides little explicit guidance on which parts of the instruction govern
+each local action. To test this conjecture, we divide demonstration trajectories into $K$
+consecutive local action segments based on action phases and annotate each segment with its
+corresponding local instruction. In a small-scale training comparison, we compare two supervision
+strategies: concatenating all local instructions to supervise the entire action sequence yields
+success rates of \textbf{23\%, 16\%, and 32\%} in the fine-grained instruction, visual-prompt, and
+corrective-control settings, respectively; pairing each local instruction with its corresponding
+action segment during training further improves these rates to \textbf{35\%, 21\%, and 44\%}. These
+results indicate that richer instruction annotations improve instruction following, while explicitly
+aligning local instructions with their corresponding action segments provides additional gains
+beyond language enrichment alone.
 
 % After training on such data, the model's success rates on the same interventions rise from 6\%, 5\%, and 25\% for $\pi_{0.5}$ to 54\%, 47\%, and 55\% in the fine-grained, visual-prompt, and corrective-control settings, respectively (Figure~\ref{fig:smartvla-behavior}). This suggests that supervision granularity, rather than basic manipulation ability, is a key bottleneck. 
 
