@@ -1,0 +1,32 @@
+{
+  "figure": "1-fig1_overview_compact_v32_editable.pdf",
+  "condition_order": ["fine_grained_semantic", "visual_prompt", "corrective_control"],
+  "local_instruction_action_alignment_success_percent": {
+    "pi05": [35, 21, 44],
+    "GR00T": [33, 14, 26],
+    "StarVLA": [31, 17, 19]
+  },
+  "quantitative_sources": {
+    "pi05": "Values retained from the existing figure.",
+    "GR00T_and_StarVLA": "Experimental statistics supplied by the authors."
+  },
+  "qualitative_images": {
+    "left_panels": "Retained from the original figure without replacement.",
+    "semantic_right": {
+      "instruction": "Approach the bowl.",
+      "source_type": "SmartVLA-Pi rollout frame",
+      "scope": "A selected moment of approaching without grasping; not a claim of whole-rollout success."
+    },
+    "visual_prompt_right": {
+      "instruction": "Pick up the black bowl beside the ramekin and place it inside the red circle.",
+      "source_type": "SmartVLA-Pi rollout frame"
+    },
+    "corrective_control_right": {
+      "instruction": "No, don't put the bowl on the plate. Put it in the ramekin instead.",
+      "source_type": "Controlled target-state illustration",
+      "scope": "Physical simulator control places and releases the bowl onto the ramekin. This is not a model rollout or evidence of model success."
+    },
+    "initialization": "Each replacement uses the archived initial physical state associated with its original scene, without resampling object positions or changing camera or visual-cue geometry.",
+    "relation_to_statistics": "The selected images illustrate the instructions and are separate from the quantitative experiment statistics."
+  }
+}
