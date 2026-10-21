@@ -1,4 +1,13 @@
+% !TeX encoding = UTF-8
 \documentclass{article}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  % Preserve the PDF 1.7 figures exported from PowerPoint/WPS.
+  \pdfminorversion=7
+  % Keep repeated pdfLaTeX passes fast; included figures are already compressed.
+  \pdfcompresslevel=1
+\fi
 % Preserve the template's Times fonts under both pdfLaTeX and Tectonic/XeTeX.
 \usepackage[OT1]{fontenc}
 \usepackage{iclr2027_conference,times}

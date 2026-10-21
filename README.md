@@ -6,11 +6,13 @@
 paper.tex                 主文件：导言区、章节顺序、参考文献和附录入口
 paper.bib                 参考文献
 math_commands.tex         数学命令
+latexmkrc                 Overleaf / TeX Live 的可移植编译设置
 sections/                 正文、声明及附录章节
 figures/                  图的 LaTeX 排版代码和 PDF/JPG 图片资源
 tables/                   表格的 LaTeX 代码
 output/pdf/               已有编译结果
 reference/                历史论文快照
+output/overleaf/           可直接上传的 Overleaf ZIP 源码包
 ```
 
 ## 正文
@@ -42,7 +44,7 @@ reference/                历史论文快照
 ## 图与表
 
 章节通过 `\input{figures/<name>}` 和 `\input{tables/<name>}` 引入图表。
-`figures/` 中的 7 个 `.tex` 文件维护图的尺寸、标题和标签；图片资源也保存在该目录，
+`figures/` 中的 `.tex` 文件维护图的尺寸、标题和标签；图片资源也保存在该目录，
 其中 Piper 轨迹图片位于 `figures/piper_trajectories/`。
 `tables/` 中的 18 个 `.tex` 文件维护正文和附录的所有表格。
 保留原有图表标签、出现顺序、浮动位置参数和局部排版设置。
@@ -53,8 +55,22 @@ reference/                历史论文快照
 
 ## 编译
 
-在 Overleaf 中上传整个项目，选择 `paper.tex` 作为主文件，编译器选择 **pdfLaTeX**。
-保留项目内的 `iclr2027_conference.sty` 和 `iclr2027_conference.bst`。
+通过 Overleaf 的 ZIP 项目上传功能，上传 `output/overleaf/smartvla_overleaf.zip`，
+选择 `paper.tex` 作为主文件，编译器选择 **pdfLaTeX**，TeX Live 选择项目中可用的最新版本。
+压缩包根目录直接包含 `paper.tex`、`paper.bib`、数学命令、会议样式、`latexmkrc`，
+以及实际引用的章节、图表和图片；无需额外上传本地 `output/` 或 `.git/` 目录。
+如果覆盖已有项目的文件，上传后执行一次 **Recompile from scratch**。
+
+`paper.tex` 为 pdfLaTeX 启用 UTF-8 输入和 PDF 1.7 输出，兼容当前从 PowerPoint/WPS 导出的图片。
+`latexmkrc` 不包含本机绝对路径；Overleaf 自动运行 BibTeX 并重复编译以解析引用。
+本地 VS Code 仍通过下方的 Tectonic 配方编译。
+
+针对 Overleaf 编译超时，两张较大的附录插图已采用无损预测压缩并合并重复图像对象；
+图像像素、矢量文字、线条和布局保持一致。pdfLaTeX 对新生成的页面流使用较低压缩级别，
+减少多轮编译的 CPU 开销。更新超时项目时，建议用新的 ZIP 创建项目，确保压缩后的图片已导入。
+
+整理规则参考 [Overleaf 官方上传说明](https://docs.overleaf.com/managing-projects-and-files/uploading-a-project)
+及[不应上传的文件](https://docs.overleaf.com/managing-projects-and-files/adding-files-to-a-project/uploading-files-to-a-project/files-that-should-not-be-included-in-a-project)。
 
 ### VS Code / LaTeX Workshop
 
@@ -63,6 +79,10 @@ reference/                历史论文快照
 请在 VS Code 中打开整个项目文件夹，然后打开 `paper.tex`，执行
 **LaTeX Workshop: Build LaTeX project**。默认编译配方为 `tectonic`，保存 `.tex`
 文件也会自动编译。所有子文件中的主文件声明均指向 `paper.tex`。
+
+工作区设置强制使用已配置的 Tectonic 配方，避免 `% !TeX program = pdflatex`
+等文件级声明绕过本地编译配置。Overleaf 的编译器在网页项目设置中选择，
+主文件不强制指定本机尚未安装的 `pdflatex` 可执行程序。
 
 PDF 输出到 `output/pdf/paper.pdf`，日志和 SyncTeX 文件也在 `output/pdf/`。
 Tectonic 自动运行 BibTeX 并按需重复编译；首次使用时可能需要联网下载宏包。
