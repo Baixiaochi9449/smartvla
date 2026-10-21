@@ -1,8 +1,8 @@
 % !TeX root = ../paper.tex
+\input{figures/fig3_dataset_construction}%
+
 \hypertarget{method}{%
 \section{SmartVLA Framework}\label{method}}
-
-\input{figures/fig2_data_construction}%
 
 SmartVLA builds on pretrained representations to strengthen instruction-conditioned control while
 retaining complete-task execution. Our core idea is to refine the granularity of instruction--action
@@ -16,52 +16,112 @@ encourage the policy to learn and use this correspondence while preserving compl
 \hypertarget{steering-oriented-data-construction}{%
 \subsection{Action-Aligned Data Construction Pipeline}\label{steering-oriented-data-construction}}
 
-We represent local supervision as $r_i=(\mathbf O_i,\mathbf S_i,\mathbf A_i,c_i,z_i,g_i)$:
-observations, robot states, and actions span a segment of length $L_i$, while $c_i$, $z_i$, and
-$g_i$ denote its instruction, object/target evidence, and interaction grade.
-Figure~\ref{fig:overview}(b) summarizes the pipeline.
+We represent local supervision as
+\[
+r_i=(\mathbf O_i,\mathbf S_i,\mathbf A_i,c_i,z_i,g_i),
+\]
+where observations, robot states, and actions span a segment of length $L_i$, while $c_i$, $z_i$,
+and $g_i$ denote the segment's instruction, object/target evidence, and interaction grade,
+respectively.
 
-\textbf{Establish behavioral scope.} Uniform cuts may split a grasp or combine distinct control
-phases. We instead identify boundaries from action changes, gripper events, and visual interactions,
-consolidate them using temporal consistency and task-family rules, and associate each segment with
-object and target evidence. This evidence constrains what the subsequent instruction should
-describe. The aim is not simply to shorten trajectories, but to align the instruction's execution
-scope with control-phase boundaries, reducing the inclusion of subsequent actions outside the
-current requirement.
+To construct this segment-level supervision, we organize the conversion from raw demonstrations to
+training examples into seven interconnected stages. Figure~\ref{fig:dataset-construction}(a)
+illustrates the automated annotation pipeline.
 
-\textbf{Match rewrites to interaction evidence.} We use three families: \textbf{Object-free atomic
-motion} specifies movement without object names; \textbf{Synonym/task rewrite} varies wording while
-preserving the local goal; and \textbf{Spatial visual generalization} pairs instructions with
-points, boxes, regions, or trajectories rendered in the observations. Low, Mid, and High grades
-correspond to free-space motion, transitions, and explicit object interaction. Low excludes spatial
-rewrites without supported targets; High excludes atomic rewrites that omit essential object
-relations; Mid permits all three (Table~\ref{tab:grade-policies}). For example, free-space motion
-such as ``move up'' need not identify an object, whereas placement must preserve what is placed and
-where. Grades therefore govern rewrite applicability and specificity, not segment retention.
+\begin{enumerate}
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\item \textbf{Quality filtering and representation unification.} We filter trajectories from multiple
+sources to remove samples with missing language annotations, unusable visual observations, or
+anomalous states or actions. We then unify the representations of observations, robot states, and
+actions and record the valid dimensions for each robot configuration, providing a common interface
+across data sources while preserving their valid control information.
+
+\item \textbf{Candidate boundary generation.} We generate candidate boundaries from differences
+between consecutive actions, motion curvature, gripper opening and closing events, and cross-frame
+visual changes. DINOv3 is used to represent cross-frame visual changes. Temporal smoothing and the
+merging of excessively short segments reduce oversegmentation caused by transient fluctuations,
+yielding candidate control segments.
+
+\item \textbf{Object and interaction evidence extraction.} We use GroundingDINO to localize
+candidate objects and SAM to obtain object or target-region masks. Temporal tracking associates
+object positions across consecutive frames. We then combine gripper--object relative positions,
+object motion, gripper state, and contact evidence to infer the active object, target region, and
+interaction phase.
+
+\item \textbf{Segment refinement and interaction grading.} We combine candidate boundaries with
+interaction evidence and refine segment boundaries using temporal consistency and task-family
+rules. Each segment is assigned a local behavioral scope and a Low, Mid, or High interaction grade.
+The resulting structured records contain action segments, control phases, object roles, and spatial
+evidence, providing a basis for subsequent instruction generation.
+
+\item \textbf{Grade-conditioned instruction rewriting.} We select applicable rewrite families
+according to the interaction grade and use Qwen to generate candidate local instructions from the
+original task and structured segment records. We also construct visual-prompt training examples for
+applicable segments. Candidate instructions and visual prompts are associated with their
+corresponding demonstration action segments; the applicability rules are described below and
+summarized in Table~\ref{tab:grade-policies}.
+
+\item \textbf{Sampling metadata recording.} For each candidate rewrite, we record the task type,
+control phase, rewrite family, applicability conditions, and recommended sampling weight. This
+metadata supports the subsequent organization of training examples by supervision type and scope
+of applicability.
+
+\item \textbf{Multimodal consistency review.} Using keyframes, candidate instructions, and spatial
+annotations, we check consistency among instruction meaning, visual targets, and segment behavior.
+We add alternative expressions where supported by the evidence and remove or disable language and
+spatial labels that are inconsistent with the action scope, object relations, or visual target.
+\end{enumerate}
+
+This pipeline first establishes the local action scope and interaction context from demonstration
+evidence, then performs constrained instruction generation, without requiring the language
+generation model to independently infer the entire temporal structure from a complete video.
+
+\textbf{Grade-conditioned rewriting rules.} In the fifth stage, interaction evidence constrains
+the applicable rewrite families so that instruction content remains consistent with the local
+behavioral scope of the corresponding segment. We use three rewrite families: Object-free atomic
+motion, which describes local motion using instructions without object names; Synonym/task rewrite,
+which varies the wording while preserving the local goal and execution scope; and Spatial visual
+generalization, which pairs visual prompts such as points, boxes, regions, or trajectories in the
+observation images with the corresponding local instructions and action segments. Visual prompts
+are provided to the policy as part of the image observations, while action supervision comes from
+the same demonstration segment.
 
 \begingroup
-% The preceding paragraph already separates this block from the text above.
-% Avoid adding wrapfig's extra top inset; keep caption-to-table spacing below.
 \setlength{\intextsep}{0pt}
 \input{tables/table_grade_policies}%
 
-\textbf{Generate and review.} The generator receives the phase, grade, and available evidence, while
-automated semantic and visual review filters inconsistent rewrites. Separating evidence extraction,
-constrained generation, and review supports scalable construction without requiring the language
-model to infer the entire temporal structure. Local examples form $\mathcal D_{\mathrm{local}}$;
-examples retaining original task instructions form $\mathcal D_{\mathrm{task}}$, preserving
-supervision of complete execution. Figure~\ref{fig:data-pipeline} summarizes the corpus.
-Appendix~\ref{appendix:data-construction} provides implementation details and illustrates the
-pipeline and segment-level examples in Figure~\ref{fig:appendix-action-aligned-pipeline}.
+For different phases of a task, we define rewriting strategies conditioned on three grades: Low
+($g_0$), Mid ($g_1$), and High ($g_2$). These grades correspond to free-space motion, transitions,
+and explicit object interaction, respectively. Low permits only atomic-motion and synonym/task
+rewrites, avoiding spatial references when no clear interaction target is available; Mid permits all
+three rewrite families; and High permits only synonym/task rewrites and spatial visual
+generalization, avoiding the reduction of explicit object interactions to atomic motions that omit
+essential object relations. For example, ``move up'' does not require identifying an object, whereas
+a placement instruction must retain information about both the object to be placed and its target
+location. Interaction grades therefore govern rewrite applicability and specificity, rather than
+serving as a criterion for segment filtering. Figure~\ref{fig:dataset-construction}(c) illustrates
+an example.
 
 \par
 \endgroup
+
+\textbf{Final supervision format.} Through this pipeline, each local instruction is associated with
+the corresponding observations, robot states, and demonstration action segment, forming the local
+supervision dataset $\mathcal D_{\mathrm{local}}$. The same action segment can yield multiple
+training examples through different applicable rewrites, while its action supervision continues to
+come from the corresponding demonstration. We also retain complete trajectories and their original
+task instructions to form the task-level supervision dataset $\mathcal D_{\mathrm{task}}$,
+providing complementary supervision for local instruction following and complete-task execution.
+Data composition and segmentation statistics are shown in Figure~\ref{fig:dataset-construction};
+implementation details and segment-level examples are provided in
+Appendix~\ref{appendix:data-construction}.
 
 \hypertarget{steering-centric-policy-training}{%
 \subsection{Three-Stage Training Recipe}\label{steering-centric-policy-training}}
 
 We separate learning how instructions specify motion, how observations locate its target, and how
-both transfer to a target domain (Figure~\ref{fig:overview}(c)). Let $\theta=(\psi,\phi)$ collect
+both transfer to a target domain. Let $\theta=(\psi,\phi)$ collect
 the backbone and action-head parameters. The policy predicts $\mathbf A_t=\mathbf
 a_{t:t+H-1}\sim\pi_\theta(\cdot\mid\mathbf o_t,\mathbf s_t,c_t)$; prediction length $H$ is distinct
 from segment length $L_i$. All stages retain the native per-example action loss

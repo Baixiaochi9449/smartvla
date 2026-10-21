@@ -5,13 +5,12 @@
   % One body-line gap before the caption; retain the standard float-to-text gap.
   \setlength{\abovecaptionskip}{\baselineskip}
   \setlength{\belowcaptionskip}{0pt}
-  \includegraphics[width=\textwidth]{figures/1-fig1_overview_compact_v32_editable.pdf}\par\nointerlineskip
-  \caption{Overview of SmartVLA. (a) Behavioral diagnosis identifies failures
-  in fine-grained semantic following, multimodal instruction understanding,
-  and mid-execution corrective control. (b) Action-aligned data construction
-  converts heterogeneous demonstrations into phase-level semantic and spatial
-  supervision. (c) Warmup, pretraining, and adaptation
-  train the two policies. (d) LIBERO-SMART and other
-  benchmarks evaluate these three capabilities and general task performance.}
+  \includegraphics[width=\textwidth,pagebox=cropbox]{figures/1--figure1_editable.pdf}\par\nointerlineskip
+  \caption{Instruction-following diagnosis across fine-grained semantic following, multimodal
+  instruction understanding, and mid-execution corrective control. Bars compare success rates
+  (\%) under original instructions, changed or updated instructions, and segment-aligned
+  supervision for $\pi_{0.5}$, GR00T, and StarVLA. High original-task success can coexist with
+  poor instruction following, while segment-aligned supervision improves performance under
+  the changed requirements.}
   \label{fig:overview}
 \end{figure}
