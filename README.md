@@ -17,7 +17,6 @@ reference/                历史论文快照
 
 - `sections/abstract.tex`：摘要
 - `sections/introduction.tex`：引言
-- `sections/motivational_diagnostics.tex`：动机诊断
 - `sections/method.tex`：SmartVLA 方法
 - `sections/libero_smart.tex`：LIBERO-SMART 基准
 - `sections/experiments.tex`：实验

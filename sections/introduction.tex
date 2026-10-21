@@ -28,7 +28,7 @@ ability.
 To quantify this gap, we conduct controlled behavioral interventions on three representative VLAs,
 $\pi_{0.5}$~\citep{intelligence2025pi}, GR00T N1.6~\citep{gear2025gr00tn16}, and
 StarVLA~\citep{community2026starvla}, using LIBERO-based manipulation tasks. As shown in
-Figure~\ref{fig:overview}(a), all three models achieve 96--99\% complete-task success with the
+Figure~\ref{fig:overview}, all three models achieve 96--99\% complete-task success with the
 original task instructions and scenes. When instructions instead specify fine-grained actions,
 success drops sharply to 1--6\%. When explicit visual prompts specify the object or spatial target,
 success is only 2--5\%. For corrective control, we initialize the robot in an intermediate state
@@ -47,52 +47,57 @@ actions once the instruction is updated during execution. Without these capabili
 policies are not smart enough to serve as reliable low-level controllers, hindering the translation
 of high-level plans and human corrections into flexible, responsive behavior in the physical world.
 
+\input{figures/fig1_overview}%
+
 %我觉得中间缺了一个东西，从现象到原因的分析，就是下面的猜想的初步验证，比如切分指令后训练确实有效果。%
+\input{figures/fig2_supervision_granularity}%
 A plausible explanation is that task-level supervision pairs a single instruction with an entire
 action sequence but provides little explicit guidance on which parts of the instruction govern
-each local action. To test this conjecture, we divide demonstration trajectories into $K$
-consecutive local action segments based on action phases and annotate each segment with its
-corresponding local instruction. In a small-scale training comparison, we compare two supervision
-strategies: concatenating all local instructions to supervise the entire action sequence yields
-success rates of \textbf{23\%, 16\%, and 32\%} in the fine-grained instruction, visual-prompt, and
-corrective-control settings, respectively; pairing each local instruction with its corresponding
-action segment during training further improves these rates to \textbf{35\%, 21\%, and 44\%}. These
-results indicate that richer instruction annotations improve instruction following, while explicitly
-aligning local instructions with their corresponding action segments provides additional gains
-beyond language enrichment alone.
+each local action. Under such supervision, a policy may rely on visual cues in familiar scenes to
+reproduce action sequences without adequately using the current instruction to determine the
+required local actions, thereby taking visual shortcuts that bypass instruction requirements. To
+examine whether explicitly aligning local instructions with action segments improves instruction
+following, we divide demonstration trajectories into $K$ consecutive local action segments based on
+action phases and annotate each segment with its corresponding local instruction. As shown in
+Figure~\ref{fig:supervision-granularity}, in a small-scale training comparison, we evaluate two
+supervision strategies: concatenating all local instructions to supervise the entire action sequence
+yields success rates of \textbf{23\%, 16\%, and 32\%} in the
+fine-grained instruction, visual-prompt, and corrective-control settings, respectively; pairing each
+local instruction with its corresponding action segment during training further improves these rates
+to \textbf{35\%, 21\%, and 44\%}. These results indicate that richer instruction annotations improve
+instruction following, while explicitly aligning local instructions with their corresponding action
+segments provides additional gains beyond language enrichment alone.
 
 % After training on such data, the model's success rates on the same interventions rise from 6\%, 5\%, and 25\% for $\pi_{0.5}$ to 54\%, 47\%, and 55\% in the fine-grained, visual-prompt, and corrective-control settings, respectively (Figure~\ref{fig:smartvla-behavior}). This suggests that supervision granularity, rather than basic manipulation ability, is a key bottleneck. 
 
 %补充实验
 
 
-\input{figures/fig1_overview}%
-
 % Therefore, we propose \textbf{SmartVLA} to strengthen instruction-conditioned control through coordinated data construction and training看不懂后半句. Paraphrasing an entire task can increase linguistic diversity without clarifying which actions a local command should govern 没头没尾一句话，这么做结果如何. We therefore construct supervision that binds each command and visual prompt to the corresponding control phase. 
 
-Therefore, we propose SmartVLA, a framework that combines action-aligned data construction with
-three-stage training to improve fine-grained semantic following, multimodal instruction
+We therefore propose SmartVLA, a framework centered on supervision that aligns local instructions
+with action segments to improve fine-grained semantic following, multimodal instruction
 understanding, and mid-execution corrective control in VLA policies. Motivated by the preceding
-experiment on supervision granularity, we explicitly pair local commands and visual prompts with the
-action segments, providing fine-grained supervision rather than relying solely on a single
-task-level instruction for an entire demonstration. To this end, we develop an automated
-\textbf{action-aligned data construction pipeline} (Figure~\ref{fig:overview}(b)): it first uses
-action, gripper, and visual evidence to establish segment boundaries and interaction context, then
-generates and reviews rewrites under grade-dependent applicability rules. This separates evidence
-extraction from language generation, reducing reliance on expensive end-to-end video annotation and
-per-segment manual rewriting while keeping instructions tied to demonstrated behavior.
+experiment on supervision granularity, we explicitly pair local instructions with action segments to
+provide fine-grained supervision, rather than relying solely on a single task-level instruction for
+an entire demonstration. To construct this segment-level supervision, we develop an automated
+action-aligned data construction pipeline that first determines the scope of local behavior from
+action and interaction evidence in demonstrations, then generates and reviews the corresponding
+local instructions. By grounding instruction generation in demonstrated behavior, the pipeline
+reduces reliance on costly end-to-end video annotation and per-segment manual rewriting. To further
+improve multimodal instruction understanding, the pipeline also adds visual prompts to the image
+observations of applicable segments to specify objects, spatial targets, or motion paths. These
+prompts are paired with the corresponding local instructions and action segments to form multimodal
+training examples.
 
-Aligned supervision alone does not ensure that a policy uses language rather than visual
-correlations to predict actions. We therefore first establish a language-conditioned action prior,
-then train its realization in observed scenes, and finally adapt it to a target domain while
-retaining complete-task supervision. This motivates our \textbf{three-stage training recipe}
-(Figure~\ref{fig:overview}(c)). Warmup trains only the action head from atomic instructions and
-robot state, removing image-based cues while preserving the frozen backbone. Pretraining restores
-visual inputs and jointly trains the policy to relate local commands and visual prompts to the
-current scene. Adaptation mixes original-task and local supervision in the target domain, addressing
-the need for both complete execution and fine-grained response. The resulting interface accepts
-updated commands in subsequent calls, enabling human operators or upper-level models to steer
-ongoing behavior.
+However, even when local instructions are aligned with action segments, a policy may still rely
+excessively on visual cues from familiar scenes without sufficiently using the current instruction
+to generate actions. We therefore adopt \textbf{three training stages: warmup, pretraining, and
+adaptation}. Warmup learns the correspondence between instructions and motion without image inputs;
+pretraining restores visual inputs to learn how to execute instructions in the current scene; and
+adaptation supports both complete-task execution and local instruction following in the target
+domain. The policy can accept updated instructions in subsequent calls, allowing human operators or
+upper-level models to steer ongoing execution.
 
 
 To evaluate whether these capabilities are realized in existing policies, we introduce LIBERO-SMART,
@@ -100,7 +105,7 @@ which separately assesses three forms of instruction following: fine-grained sem
 where the policy must execute the specified local action, relation, or constraint; multimodal
 instruction understanding, where visual prompts specify the current object or target location; and
 mid-execution corrective control, where the policy must adapt its subsequent actions after a command
-update or redirection. These capabilities are not guaranteed by success on the original task.
+update or redirection.
 Although $\pi_{0.5}$ achieves 96.85\% on the original LIBERO benchmark, its average success rate on
 LIBERO-SMART is only 7.18\%. This gap is consistent with our diagnostic observations: a policy may
 possess strong basic manipulation skills while failing to follow semantic requirements and visual
@@ -110,13 +115,9 @@ On LIBERO-SMART, SmartVLA-Pi and SmartVLA-OFT achieve average success rates of 1
 respectively, compared with 7.18\% for $\pi_{0.5}$, with both variants outperforming all
 direct-policy baselines across the three suites. Ablation studies support the contributions of
 action-aligned segmentation, grade-conditioned rewriting, spatial supervision, and staged training
-to these gains. To test whether improved instruction following also benefits hierarchical robot
-control, we replace only $\pi_{0.5}$ with SmartVLA-Pi under a fixed upper-level protocol, raising
-overall system success on LIBERO-SMART from 11.83\% to 17.67\%. As summarized in
-Figure~\ref{fig:overview}(d), we also evaluate standard task performance on
-LIBERO~\citep{liu2023libero}, LIBERO-Plus~\citep{fei2025liberoplus},
-LIBERO-Pro~\citep{zhou2025liberopro}, and RoboTwin~\citep{mu2025robotwin,chen2025robotwin2}, as well
-as real-world instruction following on the Piper platform. SmartVLA-Pi achieves 98.30\% on LIBERO
+to these gains. We also evaluate standard task performance on
+LIBERO, LIBERO-Plus, LIBERO-Pro, and RoboTwin, as well as real-world instruction following on the
+Piper platform. SmartVLA-Pi achieves 98.30\% on LIBERO
 and 84.00\% on LIBERO-Plus, outperforming $\pi_{0.5}$ by 1.45 and 3.74 percentage points,
 respectively. On Piper, it raises average success from 45.00\% to 58.50\%, a gain of 13.50
 percentage points. These experiments show that SmartVLA enables smarter, more flexible, and more

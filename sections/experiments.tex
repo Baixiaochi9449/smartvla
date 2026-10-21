@@ -54,7 +54,9 @@ and~\ref{app:smart-aggregation}.
 \input{tables/table_libero_overview}%
 
 Table~\ref{tab:libero-overview} examines task performance and generalization on benchmarks developed
-independently of LIBERO-SMART. SmartVLA-Pi and SmartVLA-OFT achieve 98.30\% and 98.20\% on LIBERO,
+independently of LIBERO-SMART: LIBERO~\citep{liu2023libero},
+LIBERO-Plus~\citep{fei2025liberoplus}, and LIBERO-Pro~\citep{zhou2025liberopro}.
+SmartVLA-Pi and SmartVLA-OFT achieve 98.30\% and 98.20\% on LIBERO,
 exceeding X-VLA~\citep{zheng2025xvla} (98.05\%) while retaining strong basic manipulation
 performance. On LIBERO-Plus, they reach 84.00\% and 82.76\%, above $\pi_{0.5}$ (80.26\%) and APT
 (55.85\%). On LIBERO-Pro, both variants outperform APT on Position and Task, reaching averages of
@@ -67,7 +69,8 @@ results are provided in Appendix~\ref{appendix:benchmark-details}.
 
 \input{tables/table_robotwin}%
 
-Table~\ref{tab:robotwin} extends the evaluation to bimanual manipulation. Under Full, which includes
+Table~\ref{tab:robotwin} extends the evaluation to bimanual manipulation on
+RoboTwin2.0~\citep{mu2025robotwin,chen2025robotwin2}. Under Full, which includes
 randomized scenes during adaptation, SmartVLA-Pi and SmartVLA-OFT achieve average success rates of
 89.79\% and 89.00\%, exceeding StarVLA (88.25\%) and ABot-M0~\citep{yang2026abotm0} (85.60\%). Under
 Clean2Random, adaptation uses only clean demonstrations, yet the two variants reach averages of

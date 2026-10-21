@@ -5,26 +5,13 @@
 \input{figures/fig2_data_construction}%
 
 SmartVLA builds on pretrained representations to strengthen instruction-conditioned control while
-retaining complete-task execution. Our diagnostics suggest a starting point: target information
-remains readable but does not reliably guide actions. Task-level supervision leaves this
-correspondence underspecified. For example, ``put the bowl on the plate'' labels approaching,
-grasping, transporting, and releasing without specifying the scope of ``approach the bowl'' alone. A
-policy may therefore use language as a task identifier and reproduce familiar actions from scene and
-execution cues. Whole-task paraphrases diversify descriptions without resolving this local
-ambiguity.
-
-Our insight is to change the granularity of supervision--action correspondence: each command should
-describe a control phase, with visual prompts specifying its current object or target. Existing
-action changes, gripper events, and visual interactions provide evidence for these phases.
-Establishing behavioral scope before generating instructions turns open-ended video annotation into
-constrained local supervision, reducing reliance on expensive end-to-end video interpretation and
-per-segment manual rewriting.
-
-Aligned data alone do not ensure that language influences action selection when visual correlations
-can predict familiar behavior. We therefore first learn instruction--motion correspondence without
-images, then ground it in observed scenes, and finally adapt to target domains while retaining
-complete-task supervision. The data pipeline specifies what behavior a command governs; staged
-training encourages the policy to use that correspondence.
+retaining complete-task execution. Our core idea is to refine the granularity of instruction--action
+supervision by explicitly pairing local instructions with their corresponding action segments while
+retaining the original task-level supervision. For data construction, we use automated annotation to
+establish these instruction--action pairs for supervision
+(Section~\ref{steering-oriented-data-construction}). For training, we adopt a staged procedure to
+encourage the policy to learn and use this correspondence while preserving complete-task supervision
+(Section~\ref{steering-centric-policy-training}).
 
 \hypertarget{steering-oriented-data-construction}{%
 \subsection{Action-Aligned Data Construction Pipeline}\label{steering-oriented-data-construction}}
